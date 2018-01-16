@@ -5,6 +5,7 @@
 \usepackage[dvipsnames,rgb,table]{xcolor}
 %\usepackage[utf8x]{inputenc}
 \usepackage[linedheaders,parts,pdfspacing]{classicthesis}
+%\usepackage{titlesec}
 \usepackage{amsmath}
 %\usepackage{acronym}
 \usepackage{a4wide} % Setup for fullpage
@@ -16,7 +17,7 @@
 \usepackage{rotating}
 \usepackage{pifont}
 %\usepackage[xindy,order=letter,nomain,acronym]{glossaries}
-\usepackage{makeidx}
+\usepackage{imakeidx}
 \usepackage{tikz}
 %\usepackage{lipsum}
 %\usepackage{amsthm}
@@ -26,16 +27,26 @@
 %\usepackage{moresize}
 %\usepackage{imakeidx}
 %\usepackage{datatool}
-%\usepackage{glossaries}
+\usepackage{glossaries}
+\usepackage{algpseudocode}
 %\usepackage{nomencl}
 %\usepackage{etoolbox}
 %\usepackage{dtklogos}
-\usepackage[portuguese]{babel}
+\usepackage[english]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
+\usepackage{afterpage}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\DeclareCaptionFormat{myformat}{#1#2#3\hrulefill}
+\captionsetup[figure]{format=myformat}
+
 
 %----------------- Using makeidx ----------------------------------------------%
+
+\newcommand*\xor{\mathbin{\oplus}}
 
 % own macro commands
 \newcommand{\uminho}[1]{
@@ -76,14 +87,14 @@
 \setlength\headsep{0pt}
 \setlength\footskip{30pt}
 
-%Line Spacing
+% Line Spacing
 \usepackage{setspace}
 \onehalfspacing
 
 % layout settings
 \renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter.\ #1}{}}
 \renewcommand{\sectionmark}[1]{\markright{\thesection.\ #1}}
-\renewcommand{\headfont}{\bfseries\fontsize{9}{11}\selectfont}
+\renewcommand{\headfont}{\bfseries\fontsize{11}{13}\selectfont}
 \renewcommand{\pnumfont}{\bfseries\fontsize{9}{11}\selectfont}
 
 % Redefine section and description fonts to the normal font
@@ -136,16 +147,13 @@
 % Professional looking tables
 \usepackage{booktabs}
 
-%Caption formatting
-\usepackage[small]{caption}
-
 % Source code inputing
 \usepackage{listings}
 \renewcommand{\lstlistlistingname}{List of Listings}
 
 % Settings for Listings
 \lstset{ %
-	language=PHP,							% choose the language of the code
+	language=Python,							% choose the language of the code
 	basicstyle=\ttfamily\footnotesize,		% the size of the fonts that are used for the code
 	keywordstyle=\bfseries,					% set the keyword style
 	%numbers=left,							% where to put the line-numbers
@@ -265,10 +273,10 @@
 	pdffitwindow=true,			% window fit to page when opened
 	pdfnewwindow=true,			% links in new window
 	colorlinks=true,				% false: boxed links; true: colored links
-	linkcolor=navy-blue,			% color of internal links
-	citecolor=dark-green,		% color of links to bibliography
+	linkcolor=black,			% color of internal links
+	citecolor=blue,		% color of links to bibliography
 	filecolor=dark-red,			% color of file links
-	urlcolor=navy-blue			% color of external links
+	urlcolor=black			% color of external links
 	%pdfkeywords={\@keywords},	% list of keywords
 }
 
@@ -356,12 +364,13 @@
 \def\optionalwithnewsgott##1{\ifnum\hide=1\relax\else\withnewsgott{##1}\fi}
 \def\withboldnewsgott##1{\fontfamily{phv}\fontseries{mc}\fontseries{b}\selectfont ##1}
 \def\optionalwithboldnewsgott##1{\ifnum\hide=1\relax\else\withboldnewsgott{##1}\fi}
-~\vskip-2cm\rule{4cm}{0pt}\begin{tabular}{l}
+~\vskip-3.52cm\rule{4cm}{0pt}
+\begin{tabular}{l}
 \UMEng[\umc]{\engc}
 \\\withboldnewsgott{\@university}\rule{0pt}{1cm}
 \\\withnewsgott{\@school}
 \\\withnewsgott{\@department}
-\\\rule{0pt}{4cm}
+\\\rule{0pt}{4.2cm}
 \\\withnewsgott{\Large\@author}
 \\\rule{0pt}{1em}
 \\\withboldnewsgott{\Large\@titleA}
@@ -369,14 +378,14 @@
 \\\rule{0pt}{0.3cm}
 \\\withboldnewsgott{\large\@subtitleA}
 \\\withboldnewsgott{\large\@subtitleB}
-\\\rule{0pt}{4.2cm}
+\\\rule{0pt}{4.5cm}
 \\\optionalwithnewsgott{\large Master dissertation}
 \\\optionalwithnewsgott{\large Mestrado Integrado em \@masterdegree}
 \\\rule{0pt}{6mm}
 \\\optionalwithnewsgott{\large Dissertation supervised by}
 \\\optionalwithboldnewsgott{\@supervisor}\rule{0pt}{4mm}
 \\\optionalwithboldnewsgott{\@cosupervisor}
-\\\rule{0pt}{2cm}
+\\\rule{0pt}{3cm}
 \\\withnewsgott{{\small\@date}}
 \end{tabular}
 }
@@ -389,8 +398,8 @@
     \gdef\hide{0}
 		\gdef\umc{grey}\gdef\engc{lightgray}\gdef\hide{0}
 	 	\@coverstyle{white}{grey}\printcover
-		\end{titlepage}
-	\normalfont \rmfamily \cleardoublepage \pagenumbering{roman}
+	\end{titlepage}
+	\normalfont \rmfamily \null\newpage \pagenumbering{roman}
 }
 
 \newcommand{\umfrontcover}{
