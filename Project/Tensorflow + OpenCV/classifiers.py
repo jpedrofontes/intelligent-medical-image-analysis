@@ -18,9 +18,11 @@ class SimpleMLP(object):
         images_flat = tf.contrib.layers.flatten(self.x)
         # Fully connected layers
         fc1 = tf.contrib.layers.fully_connected(images_flat, 64, tf.nn.relu)
-        fc2 = tf.contrib.layers.fully_connected(fc1, 32, tf.nn.relu)
-        fc3 = tf.contrib.layers.fully_connected(fc2, 32, tf.nn.tanh)
-        logits = tf.contrib.layers.fully_connected(fc3, self.num_classes, tf.nn.relu)
+        fc2 = tf.contrib.layers.fully_connected(images_flat, 64, tf.nn.relu)
+        fc3 = tf.contrib.layers.fully_connected(images_flat, 64, tf.nn.relu)
+        fc4 = tf.contrib.layers.fully_connected(images_flat, 64, tf.nn.relu)
+        fc5 = tf.contrib.layers.fully_connected(images_flat, 64, tf.nn.relu)
+        logits = tf.contrib.layers.fully_connected(fc5, self.num_classes, tf.nn.relu)
         # Define a loss function
         self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = self.y, logits = logits))
         # Define an optimizer
@@ -35,61 +37,98 @@ class AlexNet(object):
     docstring for AlexNet.
     """
     def __init__(self, img_shape, num_classes):
-        pass
+        self.img_shape = img_shape
+        self.num_classes = num_classes
 
-    def createModel(self, _X, _weights, _biases, _dropout):
+    def createModel(self):
         # Initialize placeholders
         self.x = tf.placeholder(dtype = tf.float32, shape = self.img_shape)
         self.y = tf.placeholder(dtype = tf.int32, shape = [None])
 
-        # Reshape input picture
-        _X = tf.reshape(_X, shape=[-1, 32, 32, 1])
+        input_layer = tf.reshape(self.x, [-1, 32, 32, 1])
 
-        # Convolution Layer
-        conv1 = conv2d('conv1', _X, _weights['wc1'], _biases['bc1'])
-        # Max Pooling (down-sampling)
-        pool1 = max_pool('pool1', conv1, k=2)
-        # Apply Normalization
-        norm1 = norm('norm1', pool1, lsize=4)
-        # Apply Dropout
-        norm1 = tf.nn.dropout(norm1, _dropout)
+        # Convolutional layer #1
+        conv1 = tf.layers.conv2d(inputs=input_layer, filters=96, kernel_size=[11,11], padding="SAME", activation=tf.nn.relu)
+        lrn1 = tf.nn.local_response_normalization(input=conv1, depth_radius=2, alpha=1e-05, beta=0.75)
+        pool1 = tf.layers.max_pooling2d(inputs=lrn1, pool_size=[3, 3], strides=2)
+        # Convolutional layer #2
+        conv2 = tf.layers.conv2d(inputs=pool1, filters=256, kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu)
+        lrn2 = tf.nn.local_response_normalization(input=conv2, depth_radius=2, alpha=1e-05, beta=0.75)
+        pool2 = tf.layers.max_pooling2d(inputs=lrn2, pool_size=[3, 3], strides=2)
+        # Convolutional layer #3
+        conv3 = tf.layers.conv2d(inputs=pool2, filters=384, kernel_size=[3, 3], padding="SAME", activation=tf.nn.relu)
+        # Convolutional layer #4
+        conv4 = tf.layers.conv2d(inputs=conv3, filters=384, kernel_size=[3, 3], padding="SAME", activation=tf.nn.relu)
+        # Convolutional layer #5
+        conv5 = tf.layers.conv2d(inputs=conv4, filters=256, kernel_size=[3, 3], padding="SAME", activation=tf.nn.relu)
+        pool3 = tf.layers.max_pooling2d(inputs=conv5, pool_size=[3, 3], strides=2)
+        # Flatten the input data
+        flatten = tf.contrib.layers.flatten(pool1)
+        # Fully connected layers
+        fc1 = tf.contrib.layers.fully_connected(flatten, 4096, tf.nn.relu)
+        logits = tf.contrib.layers.fully_connected(fc1, self.num_classes, tf.nn.relu)
+        # Define a loss function
+        self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = self.y, logits = logits))
+        # Define an optimizer
+        self.train_op = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.loss)
+        # Convert logits to label indexes
+        self.correct_pred = tf.argmax(logits, 1)
+        # Define an accuracy metric
+        self.accuracy = tf.reduce_mean(tf.cast(self.correct_pred, tf.float32))
 
-        # Convolution Layer
-        conv2 = conv2d('conv2', norm1, _weights['wc2'], _biases['bc2'])
-        # Max Pooling (down-sampling)
-        pool2 = max_pool('pool2', conv2, k=2)
-        # Apply Normalization
-        norm2 = norm('norm2', pool2, lsize=4)
-        # Apply Dropout
-        norm2 = tf.nn.dropout(norm2, _dropout)
+class CNN(object):
+    """
+    docstring for CNN.
+    """
+    def __init__(self, img_shape, num_classes):
+        self.img_shape = img_shape
+        self.num_classes = num_classes
 
-        # Convolution Layer
-        conv3 = conv2d('conv3', norm2, _weights['wc3'], _biases['bc3'])
-        # Max Pooling (down-sampling)
-        pool3 = max_pool('pool3', conv3, k=2)
-        # Apply Normalization
-        norm3 = norm('norm3', pool3, lsize=4)
-        # Apply Dropout
-        norm3 = tf.nn.dropout(norm3, _dropout)
-
-        # Fully connected layer
-        # Reshape conv3 output to fit dense layer input
-        dense1 = tf.reshape(norm3, [-1, _weights['wd1'].get_shape().as_list()[0]])
-        # Relu activation
-        dense1 = tf.nn.relu(tf.matmul(dense1, _weights['wd1']) + _biases['bd1'], name='fc1')
-        # Relu activation
-        dense2 = tf.nn.relu(tf.matmul(dense1, _weights['wd2']) + _biases['bd2'], name='fc2')
-        # Output, class prediction
-        out = tf.matmul(dense2, _weights['out']) + _biases['out']
-        return out
-
-def conv2d(name, l_input, w, b):
-    return tf.nn.relu(tf.nn.bias_add(tf.nn.conv2d(l_input, w, strides=[1, 1, 1, 1],
-                                                  padding='SAME'),b), name=name)
-
-def max_pool(name, l_input, k):
-    return tf.nn.max_pool(l_input, ksize=[1, k, k, 1], strides=[1, k, k, 1],
-                          padding='SAME', name=name)
-
-def norm(name, l_input, lsize=4):
-    return tf.nn.lrn(l_input, lsize, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name=name)
+    @staticmethod
+    def createModel(features, labels, mode):
+        # Input Layer
+        input_layer = tf.reshape(features["x"], [-1, 32, 32, 1])
+        # Convolutional Layer #1
+        conv1 = tf.layers.conv2d(
+            inputs=input_layer,
+            filters=32,
+            kernel_size=[5, 5],
+            padding="same",
+            activation=tf.nn.relu)
+        # Pooling Layer #1
+        pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
+        # Convolutional Layer #2 and Pooling Layer #2
+        conv2 = tf.layers.conv2d(
+            inputs=pool1,
+            filters=64,
+            kernel_size=[5, 5],
+            padding="same",
+            activation=tf.nn.relu)
+        pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
+        # Dense Layer
+        pool2_flat = tf.reshape(pool2, [-1, 8*8*64])
+        dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
+        dropout = tf.layers.dropout(inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
+        # Logits Layer
+        logits = tf.layers.dense(inputs=dropout, units=10)
+        predictions = {
+            # Generate predictions (for PREDICT and EVAL mode)
+            "classes": tf.argmax(input=logits, axis=1),
+            # Add `softmax_tensor` to the graph. It is used for PREDICT and by the `logging_hook`.
+            "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
+        }
+        if mode == tf.estimator.ModeKeys.PREDICT:
+            return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
+        # Calculate Loss (for both TRAIN and EVAL modes)
+        loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+        # Configure the Training Op (for TRAIN mode)
+        if mode == tf.estimator.ModeKeys.TRAIN:
+            optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+            train_op = optimizer.minimize(loss=loss, global_step=tf.train.get_global_step())
+            return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+        # Add evaluation metrics (for EVAL mode)
+        eval_metric_ops = {
+            "accuracy": tf.metrics.accuracy(
+            labels=labels, predictions=predictions["classes"])
+        }
+        return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
