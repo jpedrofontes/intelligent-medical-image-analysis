@@ -32,7 +32,6 @@ class BCDR:
                 print('\n[ERROR] The is no instance available of the BCDR dataset with that name.')
                 for dir in dirs:
                     print('\t- {}'.format(dir))
-                sys.exit()
         # Check if already cached
         if os.path.isdir(os.path.join(current_path, instance, 'cache')):
             print('\n[INFO] {} instance already cached, skipping...\n'.format(instance))
@@ -83,22 +82,22 @@ class BCDR:
                         roi_img = img[min_y:max_y, min_x:max_x]
                         roi_img = transform.resize(roi_img, (32, 32))
                         roi_img = rgb2gray(roi_img)
-                        print (roi_img.shape)
                         images.append(roi_img)
                         labels.append(label)
                     except:
                         pass
-            images = np.array(images, dtype=np.float32)
-            labels = np.array(labels, dtype=np.float32)
             size = len(images)
-            division = int(0.66*size)
+            # Shuffle training data
+            np.random.seed(123)
+            shuffle = np.random.randint(low=0, high=size)
+            images = np.array(images)
+            labels = np.array(labels)
             # Separate data
+            division = int(0.66*size)
             x_train = images[0:division]
             y_train = labels[0:division]
             x_test = images[division+1:size]
             y_test = labels[division+1:size]
-            # Shuffle training data
-            # shuffle = np.random.randint(low=0, high=x_train.shape[0])
             # Serialize object
             i=0
             names = ['x_train', 'y_train', 'x_test', 'y_test']

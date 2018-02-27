@@ -5,42 +5,48 @@ warnings.simplefilter("ignore")
 # Imports
 import os
 import sys
+import argparse
 import cv2 as cv
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from datasets import BCDR as bcdr
-from classifiers import SimpleMLP, AlexNet, CNN
+from classifiers import SimpleMLP, SimpleCNN, AlexNet
 
 tf.logging.set_verbosity(tf.logging.INFO)
+
+# Argument parsing
+parser = argparse.ArgumentParser(description='Train a system to identify benign and malign tumors from the BCDR dataset.')
+parser.add_argument('instance', metavar='instance', type=str, nargs='+', help='BCDR instances to use in the training process')
+parser.add_argument('-t', '--train', dest='train', action='store_true', help='start train from scratch')
+parser.add_argument('-p', '--path', dest='PATH', help='path to store model files', default=os.path.join(os.getcwd(), '/model'))
+args = parser.parse_args()
+
+# BCDR data, shuffled and split between train and test sets
+(x_train, y_train), (x_test, y_test) = bcdr.load_data(args.instance[0])
 
 num_classes = 2
 epochs = 10
 
-# BCDR data, shuffled and split between train and test sets
-if len(sys.argv) == 1:
-    (x_train, y_train), (x_test, y_test) = bcdr.load_data()
-else:
-    (x_train, y_train), (x_test, y_test) = bcdr.load_data(sys.argv[1])
-
 # Create estimator => high-level model training
-classifier = tf.estimator.Estimator(model_fn=CNN.createModel, model_dir="/tmp/convnet_model")
+classifier = tf.estimator.Estimator(model_fn=AlexNet.createModel, model_dir=args.PATH)
 # Create logger
-tensors_to_log = { "probabilities": "softmax_tensor" }
+tensors_to_log = {  }
 logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=50)
 
 # Train the model
-train_input_fn = tf.estimator.inputs.numpy_input_fn(
-    x = {"x": np.array(x_train, dtype=np.float32)},
-    y = np.array(y_train),
-    batch_size = 100,
-    num_epochs = None,
-    shuffle = True)
-classifier.train(
-    input_fn = train_input_fn,
-    steps = 1000,
-    hooks = [logging_hook])
+if args.train:
+    train_input_fn = tf.estimator.inputs.numpy_input_fn(
+        x = {"x": np.array(x_train, dtype=np.float32)},
+        y = np.array(y_train),
+        batch_size = 128,
+        num_epochs = None,
+        shuffle = True)
+    classifier.train(
+        input_fn = train_input_fn,
+        steps = 2048,
+        hooks = [logging_hook])
 
 # Evaluate the model and print results
 eval_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -51,25 +57,3 @@ eval_input_fn = tf.estimator.inputs.numpy_input_fn(
 eval_results = classifier.evaluate(
     input_fn=eval_input_fn)
 print(eval_results)
-
-
-# Create network
-# net = SimpleMLP([None, 32, 32], num_classes=num_classes)
-# net = AlexNet([None, 32, 32], num_classes=num_classes)
-# net_model = net.createModel()
-
-# Train network
-# with tf.Session() as sess:
-#     tf.set_random_seed(1234)
-#     sess.run(tf.global_variables_initializer())
-#     # Compute epochs
-#     for i in range(epochs):
-#         # Train network
-#         _, loss_value = sess.run([net.train_op, net.loss], feed_dict={net.x: x_train, net.y: y_train})
-#         # Calculate correct matches
-#         predicted = sess.run([net.correct_pred], feed_dict={net.x: x_test})[0]
-#         match_count = sum([int(y == y_) for y, y_ in zip(y_test, predicted)])
-#         # Calculate the accuracy
-#         accuracy = match_count / len(y_test)
-#         # Print the epoch results
-#         print('Finished Epoch[{} of {}]: [Training] loss = {:.3f}, accuracy = {:.3f};'.format(i+1, epochs, accuracy, loss_value))
