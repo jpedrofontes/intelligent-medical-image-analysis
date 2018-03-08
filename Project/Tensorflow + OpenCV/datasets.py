@@ -5,6 +5,7 @@ import json
 import pickle
 import skimage
 import numpy as np
+import matplotlib.pyplot as plt
 
 from skimage import data, transform
 from skimage.color import rgb2gray
