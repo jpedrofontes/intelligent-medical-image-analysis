@@ -85,7 +85,7 @@ class bcdr:
                     max_y = int(max(y_points)+10)
                     try:
                         roi_img = img[min_y:max_y, min_x:max_x]
-                        roi_img = rgb2gray(roi_img)
+                        # roi_img = rgb2gray(roi_img)
                         roi_img = transform.resize(roi_img, target_size)
                         images.append(roi_img)
                         labels.append(label)

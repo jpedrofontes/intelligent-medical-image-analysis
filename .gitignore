@@ -219,3 +219,5 @@ TSWLatexianTemp*
 # expex forward references with \gathertags
 *-tags.tex
 Project/BCDR-F01/
+Project/CNN Feature Extraction + SVM Classification/.svm
+Project/CNN Feature Extraction + SVM Classification/__pycache__/
