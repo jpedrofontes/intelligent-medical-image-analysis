@@ -7,10 +7,10 @@ import skimage
 import numpy as np
 import matplotlib.pyplot as plt
 
-from skimage import data, transform
+from skimage import data, transform, io
 from skimage.color import rgb2gray
 
-class BCDR:
+class bcdr:
     """
     docstring for BCDR.
     """
@@ -22,7 +22,7 @@ class BCDR:
     DN01 = 'BCDR-DN01'
 
     @staticmethod
-    def load_data(instance = None):
+    def load_data(instance = None, save_rois=False, target_size=(32, 32, 3)):
         # Check BCDR instance to use
         current_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
         if instance is None:
@@ -38,22 +38,22 @@ class BCDR:
                 for dir in dirs:
                     print('\t- {}'.format(dir))
         # Check if already cached
-        if os.path.isdir(os.path.join(current_path, instance, 'cache')):
+        if os.path.isdir(os.path.join(current_path, instance, '.cache')):
             print('\n[INFO] {} instance already cached, skipping.\n'.format(instance))
             # Deserialize object
             i=0
             dataset = []
-            names = ['x_train', 'y_train', 'x_test', 'y_test']
+            names = ['images', 'labels']
             for name in names:
-                with open(os.path.join(current_path, instance, 'cache', names[i]), "rb") as f:
+                with open(os.path.join(current_path, instance, '.cache', names[i]), "rb") as f:
                     serialized = f.read()
                 i = i+1
                 deserialized = pickle.loads(serialized)
                 dataset.append(deserialized)
-            return (dataset[0], dataset[1]), (dataset[2], dataset[3])
+            return (dataset[0], dataset[1])
         else:
             print('\n[INFO] Processing {} instance...\n'.format(instance))
-            os.makedirs(os.path.join(current_path, instance, 'cache'))
+            os.makedirs(os.path.join(current_path, instance, '.cache'))
             num_classes = 2
             save = False
             # Retrieve the data from the csv file
@@ -63,7 +63,7 @@ class BCDR:
                 outlines_reader = csv.DictReader(raw_data, delimiter=',')
                 for row in outlines_reader:
                     img_path = os.path.join(path, row['image_filename'][1:])
-                    img = data.imread(img_path)
+                    img = io.imread(img_path)
                     # Benign => green
                     # Malign => red
                     if row['classification'][1:] == 'Benign':
@@ -85,30 +85,32 @@ class BCDR:
                     max_y = int(max(y_points)+10)
                     try:
                         roi_img = img[min_y:max_y, min_x:max_x]
-                        roi_img = transform.resize(roi_img, (32, 32))
                         roi_img = rgb2gray(roi_img)
+                        roi_img = transform.resize(roi_img, target_size)
                         images.append(roi_img)
                         labels.append(label)
                     except:
                         pass
-            size = len(images)
             # Shuffle training data
-            np.random.seed(123)
-            shuffle = np.random.randint(low=0, high=size)
             images = np.array(images)
             labels = np.array(labels)
-            # Separate data
-            division = int(0.66*size)
-            x_train = images[0:division]
-            y_train = labels[0:division]
-            x_test = images[division+1:size]
-            y_test = labels[division+1:size]
             # Serialize object
             i=0
-            names = ['x_train', 'y_train', 'x_test', 'y_test']
-            for array in [x_train, y_train, x_test, y_test]:
+            names = ['images', 'labels']
+            for array in [images, labels]:
                 serialized = pickle.dumps(array, protocol=0)
-                with open(os.path.join(current_path, instance, 'cache', names[i]), "wb") as f:
+                with open(os.path.join(current_path, instance, '.cache', names[i]), "wb") as f:
                     f.write(serialized)
                 i+=1
-            return ((x_train), y_train), (x_test, y_test)
+            if save_rois:
+                if not os.path.isdir(os.path.join(current_path, instance, 'ROIs')):
+                    print('[INFO] Saving ROI\'s extracted...\n', )
+                    os.mkdir(os.path.join(current_path, instance, 'ROIs'))
+                    os.mkdir(os.path.join(current_path, instance, 'ROIs/benign'))
+                    os.mkdir(os.path.join(current_path, instance, 'ROIs/malign'))
+                    for i in range(images.shape[0]):
+                        if labels[i] == 0:
+                            io.imsave(os.path.join(current_path, instance, 'ROIs/benign', '{}.png'.format(i)), images[i])
+                        else:
+                            io.imsave(os.path.join(current_path, instance, 'ROIs/malign', '{}.png'.format(i)), images[i])
+            return (images, labels)
