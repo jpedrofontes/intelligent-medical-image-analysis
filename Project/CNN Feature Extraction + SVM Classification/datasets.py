@@ -10,6 +10,14 @@ import matplotlib.pyplot as plt
 from skimage import data, transform, io
 from skimage.color import rgb2gray
 
+def global_contrast_normalization(X, s, lmda, epsilon):
+    # replacement for the loop
+    X_average = np.mean(X)
+    X = X - X_average
+    contrast = np.sqrt(lmda + np.mean(X**2))
+    X = s * X / max(contrast, epsilon)
+    return X
+
 class bcdr:
     """
     docstring for BCDR.
@@ -79,19 +87,50 @@ class bcdr:
                     x_points = np.fromstring(row['lw_x_points'], sep=' ')
                     y_points = np.fromstring(row['lw_y_points'], sep=' ')
                     # Get bounding box [y,x]
-                    min_x = int(min(x_points)-10)
-                    min_y = int(min(y_points)-10)
-                    max_x = int(max(x_points)+10)
-                    max_y = int(max(y_points)+10)
+                    min_x = int(min(x_points))
+                    min_y = int(min(y_points))
+                    max_x = int(max(x_points))
+                    max_y = int(max(y_points))
                     try:
                         roi_img = img[min_y:max_y, min_x:max_x]
-                        # roi_img = rgb2gray(roi_img)
+                        roi_img = rgb2gray(roi_img)
+                        roi_img = np.stack((roi_img,) * 3, -1)
                         roi_img = transform.resize(roi_img, target_size)
-                        images.append(roi_img)
+                        images.append(global_contrast_normalization(roi_img, 1, 10, 0.000000001))
                         labels.append(label)
                     except:
                         pass
-            # Shuffle training data
+            # Data Augmentation Process
+            for i in range(len(images)):
+                # 90 degrees rotation
+                img = transform.rotate(images[i], angle=90)
+                images.append(img)
+                labels.append(labels[i])
+                # 180 degrees rotation
+                img = transform.rotate(images[i], angle=180)
+                images.append(img)
+                labels.append(labels[i])
+                # 270 degrees rotation
+                img = transform.rotate(images[i], angle=-90)
+                images.append(img)
+                labels.append(labels[i])
+                # Flipped images
+                img_flip = np.fliplr(images[i])
+                images.append(img_flip)
+                labels.append(labels[i])
+                # 90 degrees rotation
+                img = transform.rotate(img_flip, angle=90)
+                images.append(img)
+                labels.append(labels[i])
+                # 180 degrees rotation
+                img = transform.rotate(img_flip, angle=180)
+                images.append(img)
+                labels.append(labels[i])
+                # 270 degrees rotation
+                img = transform.rotate(img_flip, angle=270)
+                images.append(img)
+                labels.append(labels[i])
+            # Final Numpy Array
             images = np.array(images)
             labels = np.array(labels)
             # Serialize object
