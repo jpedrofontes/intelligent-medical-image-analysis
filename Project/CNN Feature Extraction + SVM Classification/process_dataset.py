@@ -71,7 +71,6 @@ if __name__ == "__main__":
     parser.add_argument('instances', metavar='instance', type=str, nargs='+', help='BCDR instances to use in the training process')
     parser.add_argument('-s', '--save-rois', dest='save', action='store_true', help='save ROI\'s extracted from BCDR instances')
     parser.add_argument('-c', '--classifier', dest='classifier', help='model to be used for classification', default='CNN')
-    parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true', help='evaluate model generated')
     parser.add_argument('-p', '--path', dest='PATH', help='path to store model files', default=os.path.join(os.getcwd(), '/model'))
     args = parser.parse_args()
 
@@ -85,7 +84,7 @@ if __name__ == "__main__":
     from sklearn.svm import SVC
     from sklearn.decomposition import PCA
     from sklearn.neural_network import MLPClassifier
-    from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import StratifiedKFold
     from sklearn.metrics import accuracy_score, confusion_matrix
 
     from keras import backend as K
@@ -108,41 +107,41 @@ if __name__ == "__main__":
         images = np.append(images, img, axis=0)
         labels = np.append(labels, lbs, axis=0)
     # Split in train and test data
-    x_train, x_test, y_train, y_test = train_test_split(
-        images,
-        labels,
-        test_size=0.4,
-        random_state=12345,
-        stratify=labels)
-    y_train = to_categorical(y_train, num_classes=2)
-    y_test = to_categorical(y_test, num_classes=2)
-
+    kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=12345)
+    cvscores = []
+    models = []
+    i = 1
     # Check if a network exists
     if not os.path.isfile(os.path.join(os.getcwd(), args.PATH, 'cnn_model.json')):
         # Feature Extraction Model
         print('[INFO] Fine-tuning InceptionV3 model for feature extration...\n')
-        base_model = InceptionV3(weights='imagenet', include_top=False)
-        # Add classification layers
-        x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        x = Dense(1024, activation='relu', name="dense_1")(x)
-        x = Dense(512, activation='relu', name="dense_2")(x)
-        predictions = Dense(2, activation='softmax', name="dense_3")(x)
-        # this is the model we will train
-        model = Model(inputs=base_model.input, outputs=predictions)
-        # model = baseModel()
-        # first: train only the top layers (which were randomly initialized)
-        # i.e. freeze all convolutional InceptionV3 layers
-        # for layer in base_model.layers:
-        #     layer.trainable = False
-        # compile the model (should be done *after* setting layers to non-trainable)
-        model.compile(optimizer=SGD(lr=0.001, decay=1e-9, momentum=0.9, nesterov=True),
-            loss='categorical_crossentropy',
-            metrics=['accuracy'])
         # prepare a tensorboard callback
         tbCallBack = keras.callbacks.TensorBoard(log_dir='./Graph', histogram_freq=0, write_graph=True, write_images=True)
-        # train the model on the new data for a few epochs
-        model.fit(x_train, y_train, batch_size=8, epochs=35, verbose=1, callbacks=[tbCallBack], validation_split=0.1, shuffle=True)
+        # train the model using 10-Fold Cross Validation
+        for train, test in kfold.split(images, labels):
+            print('[TRAINING] Iteration {}:'.format(i))
+            base_model = InceptionV3(weights='imagenet', include_top=False)
+            # Add classification layers
+            x = base_model.output
+            x = GlobalAveragePooling2D()(x)
+            x = Dense(1024, activation='relu', name="dense_1")(x)
+            x = Dense(512, activation='relu', name="dense_2")(x)
+            predictions = Dense(2, activation='softmax', name="dense_3")(x)
+            # this is the model we will train
+            model = Model(inputs=base_model.input, outputs=predictions)
+            # Compile model
+            model.compile(optimizer=SGD(lr=0.001, decay=1e-9, momentum=0.9, nesterov=True),
+                loss='categorical_crossentropy',
+                metrics=['accuracy'])
+            # Fit the model
+            model.fit(images[train], to_categorical(labels[train]), batch_size=8, epochs=35, verbose=1, callbacks=[tbCallBack], shuffle=True)
+            # evaluate the model
+            scores = model.evaluate(images[test], to_categorical(labels[test]), verbose=0)
+            print('[RESULTS] Accuracy: {}%'.format(scores[1]*100))
+            cvscores.append(scores[1] * 100)
+            models.append(model)
+            i += 1
+        print('Final Results: {}% (+/- {}%)'.format(numpy.mean(cvscores), numpy.std(cvscores)))
         # Save model
         save_model_json(model=model, fich='./cnn_model.json')
         save_weights_hdf5(model=model, fich='./cnn_weights.h5')
@@ -157,8 +156,7 @@ if __name__ == "__main__":
             print('{} {}'.format(i, layer.name))
 
         print('[INFO] InceptionV3 pretrained model successfully loaded\n')
-    # Choose classifier
-    real, pred = [], []
+    # Check if classifier for feature classification
     if args.classifier == 'SVM':
         # Create model with base model outputs for feature extraction
         model = Model(inputs=model.input, outputs=model.get_layer("dense_2").output)
@@ -186,6 +184,7 @@ if __name__ == "__main__":
             clf = pickle.loads(serialized)
         # Model Evaluation
         print('[INFO] Evaluating model...\n')
+        real, pred = [], []
         for i in range(len(x_test)):
             features_temp = model.predict(np.array([x_test[i]]))
             features = features_temp.flatten()
@@ -193,7 +192,3 @@ if __name__ == "__main__":
             prediction = clf.predict([features])
             pred.append(prediction[0])
         print('[INFO] Accuracy: {}\n'.format(accuracy_score(real, pred)))
-    else:
-        print('[INFO] Evaluating model...\n')
-        score = model.evaluate(x_test, y_test, batch_size=8, verbose=0)
-        print('[INFO] Accuracy: {}\n'.format(score[1]))
