@@ -61,7 +61,6 @@ class bcdr:
             return (dataset[0], dataset[1])
         else:
             print('\n[INFO] Processing {} instance...\n'.format(instance))
-            os.makedirs(os.path.join(current_path, instance, '.cache'))
             num_classes = 2
             save = False
             # Retrieve the data from the csv file
@@ -136,8 +135,9 @@ class bcdr:
             # Serialize object
             i=0
             names = ['images', 'labels']
+            os.makedirs(os.path.join(current_path, instance, '.cache'))
             for array in [images, labels]:
-                serialized = pickle.dumps(array, protocol=0)
+                serialized = pickle.dumps(array)
                 with open(os.path.join(current_path, instance, '.cache', names[i]), "wb") as f:
                     f.write(serialized)
                 i+=1

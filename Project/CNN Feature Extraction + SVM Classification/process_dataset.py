@@ -118,7 +118,7 @@ if __name__ == "__main__":
     y_test = to_categorical(y_test, num_classes=2)
 
     # Check if a network exists
-    if not os.path.isfile(os.path.join(os.getcwd(), args.PATH, '.cnn')):
+    if not os.path.isfile(os.path.join(os.getcwd(), args.PATH, 'cnn_model.json')):
         # Feature Extraction Model
         print('[INFO] Fine-tuning InceptionV3 model for feature extration...\n')
         base_model = InceptionV3(weights='imagenet', include_top=False)
@@ -144,15 +144,18 @@ if __name__ == "__main__":
         # train the model on the new data for a few epochs
         model.fit(x_train, y_train, batch_size=8, epochs=35, verbose=1, callbacks=[tbCallBack], validation_split=0.1, shuffle=True)
         # Save model
-        save_model_json(model=model, fich='./.cnn')
-        save_weights_hdf5(model=model, fich='./.cnn_weights')
+        save_model_json(model=model, fich='./cnn_model.json')
+        save_weights_hdf5(model=model, fich='./cnn_weights.h5')
     else:
         print('[INFO] Loading InceptionV3 pretrained model...\n')
-        model = load_model_json(fich='./.cnn')
-        load_weights_hdf5(model=model, fich='./.cnn_weights')
+        model = load_model_json(fich='./cnn_model.json')
+        load_weights_hdf5(model=model, fich='./cnn_weights.h5')
         model.compile(optimizer=SGD(lr=0.001, decay=1e-9, momentum=0.9, nesterov=True),
             loss='categorical_crossentropy',
             metrics=['accuracy'])
+        for i, layer in enumerate(model.layers):
+            print('{} {}'.format(i, layer.name))
+
         print('[INFO] InceptionV3 pretrained model successfully loaded\n')
     # Choose classifier
     real, pred = [], []
@@ -160,7 +163,7 @@ if __name__ == "__main__":
         # Create model with base model outputs for feature extraction
         model = Model(inputs=model.input, outputs=model.get_layer("dense_2").output)
         # Support Vector Machines Classification
-        if not os.path.isfile(os.path.join(os.getcwd(), args.PATH, '.svm')):
+        if not os.path.isfile(os.path.join(os.getcwd(), args.PATH, 'svm.h5')):
             # Extract features from CNN network
             print('[INFO] Extracting features...\n')
             features = []
@@ -174,11 +177,11 @@ if __name__ == "__main__":
             clf = SVC()
             clf.fit(features, labels)
             serialized = pickle.dumps(clf)
-            with open(os.path.join(os.getcwd(), args.PATH, '.svm'), "wb") as f:
+            with open(os.path.join(os.getcwd(), args.PATH, 'svm.h5'), "wb") as f:
                 f.write(serialized)
         else:
             print('[INFO] Loading pretrained SVM model...\n')
-            with open(os.path.join(os.getcwd(), args.PATH, '.svm'), "rb") as f:
+            with open(os.path.join(os.getcwd(), args.PATH, 'svm.h5'), "rb") as f:
                 serialized = f.read()
             clf = pickle.loads(serialized)
         # Model Evaluation
