@@ -73,6 +73,8 @@ if __name__ == "__main__":
 	parser.add_argument('-s', '--save-rois', dest='save', action='store_true', help='save ROI\'s extracted from BCDR instances')
 	parser.add_argument('-c', '--classifier', dest='classifier', help='model to be used for classification', default='CNN')
 	parser.add_argument('-p', '--path', dest='PATH', help='path to store model files', default=os.path.join(os.getcwd(), '/model'))
+	parser.add_argument('-gpus', '--gpus', dest='gpus', help='number of GPU\'s to use for training', default=None)
+	parser.add_argument('-b', '--batch-size', dest='batch_size', help='number of batches to use for training', default=8)
 	args = parser.parse_args()
 
 	# Imports
@@ -96,7 +98,7 @@ if __name__ == "__main__":
 	from keras.optimizers import Adam, SGD
 	from keras.preprocessing import image
 	from keras.utils import to_categorical
-	from keras.utils.training_utils import multi_gpu_model
+	from keras.utils.multi_gpu_utils import multi_gpu_model
 	from keras.applications.inception_v3 import InceptionV3, preprocess_input
 
 	# Tensorflow verbosity control
@@ -137,12 +139,14 @@ if __name__ == "__main__":
 			predictions = Dense(2, activation='softmax', name="dense_3")(x)
 			# this is the model we will train
 			model = Model(inputs=base_model.input, outputs=predictions)
+			if args.gpus is not None:
+				model = multi_gpu_model(model, gpus=int(args.gpus))
 			# Compile model
 			model.compile(optimizer=SGD(lr=0.001, decay=1e-9, momentum=0.9, nesterov=True),
 				loss='categorical_crossentropy',
 				metrics=['accuracy'])
 			# Fit the model
-			model.fit(images[train], to_categorical(labels[train]), batch_size=32, epochs=30, verbose=1, callbacks=[tbCallBack], shuffle=True, validation_data=(images[test], to_categorical(labels[test])))
+			model.fit(images[train], to_categorical(labels[train]), batch_size=int(args.batch_size), epochs=30, verbose=1, callbacks=[tbCallBack], shuffle=True, validation_data=(images[test], to_categorical(labels[test])))
 			# Measure and print execution time
 			end = time.time()
 			print('Execution time: {}ms'.format(end-start))
