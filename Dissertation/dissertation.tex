@@ -48,6 +48,9 @@
 \newacronym{dbn}{DBN}{Deep Belief Network}
 \newacronym{roi}{ROI}{Region Of Interest}
 \newacronym{auc}{AUC}{Area Under the ROC Curve}
+\newacronym{svm}{SVM}{Support Vector Machine}
+\newacronym{mlo}{MLO}{Medio-Lateral Oblique}
+\newacronym{cc}{CC}{Craniocaudal}
 % ...
 
 % these could go in an acronyms.tex file, and loaded with:
@@ -197,11 +200,11 @@
       Breast cancer is one of the most spread chronic non-communicable diseases in the world. According to the American Cancer Society \cite{american2015global}, breast cancer represents 25 percent of the new cancer diagnostics in women worldwide, being the greatest cause of death in world's developing regions.
 
       % ... Problem Presentation
-      Having this in mind, the purpose of this dissertation is to introduce Deep Learning\index{Deep Learning} functionalities to improve the current \gls{cadx} methods of breast cancer diagnosis. Current \gls{cadx} methods already help doctors in their diagnostic tasks, improving diagnosis accuracy and achieving a earlier diagnosis, which gives a bigger change of recovery to patients. Having such a huge role in diagnosis, \gls{cadx} methods need to be improved in order to achieve a better performance in classifying cancer phenotypes. Since current \gls{cadx} methods use Machine Learning\index{Machine Learning} algorithms in their tasks, the introduction of Deep Learning\index{Deep Learning} can give a boost in these methods performance.
+      Having this in mind, the purpose of this dissertation is to introduce Deep Learning\index{Deep Learning} functionalities to improve the current \gls{cadx} methods of breast cancer diagnosis. Current \gls{cadx} methods already help medical professionals in their diagnostic tasks, improving diagnosis accuracy and achieving a earlier diagnosis, which gives a bigger change of recovery to patients. Having such a huge role in diagnosis, \gls{cadx} methods need to be improved in order to achieve a better performance in classifying cancer phenotypes. Since current \gls{cadx} methods use Machine Learning\index{Machine Learning} algorithms in their tasks, the introduction of Deep Learning\index{Deep Learning} can give a boost in these methods performance.
 
     \section{Motivation and Main Aims} \label{intro:objectives}
       % ... Motivation
-      This work has its motivation based in the statistics presented on section \ref{intro:case-study}. Watching the numbers being so large worldwide, it is necessary to provide better methods to help doctors in their diagnostic activities. Achieving an earlier and more accurate diagnosis will make the mortality numbers come down, helping to save more lives. The introduction of \gls{cadx} systems can bring improvements in the early cancer detection process. With this, the main aims of this work are:
+      This work has its motivation based in the statistics presented on section \ref{intro:case-study}. Watching the numbers being so large worldwide, it is necessary to provide better methods to help medical professionals in their diagnostic activities. Achieving an earlier and more accurate diagnosis will make the mortality numbers come down, helping to save more lives. The introduction of \gls{cadx} systems can bring improvements in the early cancer detection process. With this, the main aims of this work are:
 
       \begin{itemize}
         \item To carry out a study of the algorithms and tools of Deep Learning\index{Deep Learning} , in specific for analysis of medical images;
@@ -232,7 +235,7 @@
 
   % CHAPTER - State of the Art --------------------
   \chapter{Background} \label{background}
-    This chapter provides some context to the work presented in this dissertation. Having this, this chapter is centered in presenting the concepts behind Deep Learning\index{Deep Learning} , since its origins in Machine Learning, the current state of the art and, finally, how it can be used to build \gls{cadx} systems.
+    This chapter provides some context to the work presented in this dissertation. Having this, this chapter is centered in presenting the concepts of Medical Image Analysis, with an emphasis in breast cancer diagnosis. It also presents the concepts behind Deep Learning\index{Deep Learning}, since its origins in Machine Learning, the current state of the art and, finally, how it can be used to build \gls{cadx} systems. It also presents
 
     \section{Machine Learning Basics} \label{background:machine-learning}
       % ... Some Definitions
@@ -300,6 +303,66 @@
             \label{background:machine-learning:back-propagation}
           \end{figure}
         }
+
+    \section{Medical Image Analysis} \label{background:medical-image}
+      % ... Some Definitions
+      Medical Image Analysis is a sub-field of computer vision that concerns with knowledge extraction from medical images/exams like X-ray, ultrasound or MRI \cite{dhawan2011medical}. After obtaining these images, computers analyze them in order to determine the presence or absence of lesions, only visible through the use of risky surgical interventions.
+
+      % ... Evolution
+      The process of analyzing these images began to be done only by experts, who would determine the existence or absence of these lesions through the visual analysis of the images obtained. With the advance of technology, medical image analysis through computer become an aid to specialists, since it facilitated diagnostic processes using computer vision algorithms to make certain processes easier, such as organ segmentation \cite{karssemeijer1988recognition, punia2013review} or lesion classification \cite{wolberg1994machine} . With the advent of machine learning algorithms, it was possible to teach the machines how to diagnose based on features extracted from the images obtained by medical imaging. By using variety-rich datasets, covering a significant number of possible cases, it would be possible to obtain good diagnostic results. An example proposed by López et al. in 2007 \cite{lopez2007breast} was to identify cases of breast cancer using machine learning tools.
+
+      % ... Use of Deep Learning
+      As was the norm for traditional machine learning algorithms, they reached a point where it was not possible to obtain better results than the ones obtained at the time, already shown in previous sections. With this, Deep Learning became the first aim in research in medical image analysis. As already reported in section \ref{background:deep-learning}, Deep Learning algorithms can learn features directly from raw data (e.g. image pixels), so the intervention of an expert for handcrafted feature extraction is no longer necessary for the algorithms to do its job. These algorithms can achieve a better performance than traditional machine learning techniques, which will lead to better results in diagnostic and to the salvation of many lives.
+
+      \paragraph{Classification}
+        Most Deep Learning approaches to medical image analysis tend to classification tasks. In here, one can find examples like image/exam classification (using the whole image, the output will be the existence or not of, e.g. a disease) or lesion classification (using an image, it will assign a class into parts of the image, giving a single image multiple classes).
+
+      \paragraph{Segmentation}
+        Another task with great importance in medical image analysis where Deep Learning techniques are used is segmentation. In here, organ, subsection or lesion segmentation are the major areas of research. Using segmentation in diagnosis, the expert's work will be facilitated be the visual feedback created by the segmetation process. An example of brain matter and fluids segmentation is presented in figure \ref{background:medical-image:segmentation}.
+
+        \begin{figure}[t]
+          \centering
+          \includegraphics[width=0.65\textwidth]{"./img/img-classification-segmentation"}
+          \caption[Example of brain subsections segmentation]{Example of brain subsections segmentation. This image shows the original exam (CT-scan), the individual segments captured by the segmentation algorithm and the final segmented image using different colors.
+          \\Source.: \href{http://bit.ly/2CClqv3}{http://bit.ly/2CClqv3}, Accessed 6 January 2017}
+          \label{background:medical-image:segmentation}
+        \end{figure}
+
+      \subsection{Breast Cancer Diagnosis} \label{background:medical-image:breast-cancer-diagnosis}
+        Breast cancer diagnosis is one of the main topics in medical image analysis research nowadays. Since breast cancer is one of the most spreaded and deadly diseases in the world, researchers try to find new ways of diagnosing it sooner and accurately.
+
+        The most common types of breast cancer start in the ducts that carry milk to the nipple or in the glands that produce the milk. These cancers are called ductal and lobular cancers respectively \cite{hunt2012diseases}. These tumors can form a lump in the breast tissue that is visible in breast exams like mammography/mammogram or MRI.
+
+        \afterpage{
+            \begin{figure}[t]
+                \centering
+                \begin{subfigure}[t]{0.5\textwidth}
+                  \centering
+                  \includegraphics[width=\linewidth]{"./img/ductal-cancer"}
+                  \caption{Ductal Ductal Cancer}
+                  \label{background:medical-image:breast-cancer-diagnosis:ductal}
+                \end{subfigure}%
+                \begin{subfigure}[t]{0.5\textwidth}
+                  \centering
+                  \includegraphics[width=\linewidth]{"./img/lobular-cancer"}
+                  \caption{Lobular Breast Cancer}
+                  \label{background:medical-image:breast-cancer-diagnosis:lobular}
+                \end{subfigure}
+                \caption[Schemes for Ductal and Lobular Breast Carcinomas]{Schemes for Ductal and Lobular Breast Carcinomas. Ductal Tumors form in the ducts that carry milk to the nipple. In the case of Lobular Tumors, they form in the breast lobules, the structures responsible for producing milk.\\Source.: \href{http://bit.ly/2DgnkFg}{http://bit.ly/2DgnkFg}, Accessed 11 Jan 2018}
+                \label{background:medical-image:breast-cancer-diagnosis:types}
+            \end{figure}
+        }
+
+        % ... Diagnostic Systems
+        \paragraph{Mammography/Mammogram}
+          Mammography is a method for breast cancer screening that uses X-rays to get a X-ray film of the breast \cite{starting2012mammography}. This exam is the oldest in breast examining and is the primary exam for cancer detection. Some advances have been made in the late years that include:
+
+          \begin{itemize}
+            \item Digital Mammography - also called full film mammography, is a method that converts X-rays into mammographic pictures, producing a digital image that can be used in \gls{cadx} systems without scanning. this method produces less error that the scanning of X-ray films;
+            \item Breast Tomosynthesis - also called 3D mammography, is a method where multiple images are retrieved from the breast, using different angles to produce a 3D model after reconstruction.
+          \end{itemize}
+
+          These methods can be used by \gls{cadx} systems to search for abnormal areas in the breast (e.g. abnormal masses) that could indicate cancer. \gls{cadx} systems nowadays use primarily film and digital mammographies, although tomosynthesis is starting to appear in breast cancer research. Some of the uses of these exams are presented in section \ref{problem:approaches}.
 
     \section{Deep Learning} \label{background:deep-learning}
       % ... Some Definitions
@@ -400,85 +463,25 @@
           These algorithms can be used in topic modeling \cite{mirowski2010dynamic}. In its operations, similar data will generate the same output, being useful in question-answer answer systems like Watson \cite{high2012era}. % ...
 
       \subsection{Reinforcement Learning}
-        % ... Some Definitions
-        Reinforcement Learning is a set of unsupervised learning methods that study the way how intelligent agents take actions in order to maximize a certain reward. In these methods, an intelligent agent must find the correct answer to the problem by trying to find the possibilities based on the current environment state. The execution flow of basic reinforcement learning can be summarized in the following actions:
-
-        \begin{enumerate}
-          \item Agent performs action on environment;
-          \item Environment rewards the agent by its action;
-          \item Agent calculates the convenience of the action;
-          \item Agent performs a new action.
-        \end{enumerate}
-
-        The key difference between supervised learning and reinforcement learning is the fact that reinforcement learning explores the environment in order to search for the best way to solve a problem. Supervised methods will fit to a way to solve that problem. Reinforcement learning methods will learn from experience in a trial-and-error strategy in order to maximize the final reward.
-
-        \paragraph{Exploration/Exploitation trade-off}
-          A key paradox in reinforcement learning methods is the exploration/exploitation trade-off. By exploring, an agent will choose something that it does not have information, but it can bring new and important knowledge. On the other hand, exploiting will secure expectations, because it will use already known things and will often produce expected results. When an agent first starts its interaction with the environment, it will explore in order to build its knowledge. After some time, it will exploit what it already knows, always looking for the maximum reward. % ...
-
-    \section{Medical Image Analysis} \label{background:medical-image}
       % ... Some Definitions
-      Medical Image Analysis is a sub-field of computer vision that concerns with knowledge extraction from medical images/exams like X-ray, ultrasound or MRI \cite{dhawan2011medical}. After obtaining these images, computers analyze them in order to determine the presence or absence of lesions, only visible through the use of risky surgical interventions.
+      Reinforcement Learning is a set of unsupervised learning methods that study the way how intelligent agents take actions in order to maximize a certain reward. In these methods, an intelligent agent must find the correct answer to the problem by trying to find the possibilities based on the current environment state. The execution flow of basic reinforcement learning can be summarized in the following actions:
 
-      % ... Evolution
-      The process of analyzing these images began to be done only by experts, who would determine the existence or absence of these lesions through the visual analysis of the images obtained. With the advance of technology, medical image analysis through computer become an aid to specialists, since it facilitated diagnostic processes using computer vision algorithms to make certain processes easier, such as organ segmentation \cite{karssemeijer1988recognition, punia2013review} or lesion classification \cite{wolberg1994machine} . With the advent of machine learning algorithms, it was possible to teach the machines how to diagnose based on features extracted from the images obtained by medical imaging. By using variety-rich datasets, covering a significant number of possible cases, it would be possible to obtain good diagnostic results. An example proposed by López et al. in 2007 \cite{lopez2007breast} was to identify cases of breast cancer using machine learning tools.
+      \begin{enumerate}
+        \item Agent performs action on environment;
+        \item Environment rewards the agent by its action;
+        \item Agent calculates the convenience of the action;
+        \item Agent performs a new action.
+      \end{enumerate}
 
-      % ... Use of Deep Learning
-      As was the norm for traditional machine learning algorithms, they reached a point where it was not possible to obtain better results than the ones obtained at the time, already shown in previous sections. With this, Deep Learning became the first aim in research in medical image analysis. As already reported in section \ref{background:deep-learning}, Deep Learning algorithms can learn features directly from raw data (e.g. image pixels), so the intervention of an expert for handcrafted feature extraction is no longer necessary for the algorithms to do its job. These algorithms can achieve a better performance than traditional machine learning techniques, which will lead to better results in diagnostic and to the salvation of many lives.
+      The key difference between supervised learning and reinforcement learning is the fact that reinforcement learning explores the environment in order to search for the best way to solve a problem. Supervised methods will fit to a way to solve that problem. Reinforcement learning methods will learn from experience in a trial-and-error strategy in order to maximize the final reward.
 
-      \paragraph{Classification}
-        Most Deep Learning approaches to medical image analysis tend to classification tasks. In here, one can find examples like image/exam classification (using the whole image, the output will be the existence or not of, e.g. a disease) or lesion classification (using an image, it will assign a class into parts of the image, giving a single image multiple classes).
-
-      \paragraph{Segmentation}
-        Another task with great importance in medical image analysis where Deep Learning techniques are used is segmentation. In here, organ, subsection or lesion segmentation are the major areas of research. Using segmentation in diagnosis, the expert's work will be facilitated be the visual feedback created by the segmetation process. An example of brain matter and fluids segmentation is presented in figure \ref{background:medical-image:segmentation}.
-
-        \begin{figure}[t]
-          \centering
-          \includegraphics[width=0.65\textwidth]{"./img/img-classification-segmentation"}
-          \caption[Example of brain subsections segmentation]{Example of brain subsections segmentation. This image shows the original exam (CT-scan), the individual segments captured by the segmentation algorithm and the final segmented image using different colors.
-          \\Source.: \href{http://bit.ly/2CClqv3}{http://bit.ly/2CClqv3}, Accessed 6 January 2017}
-          \label{background:medical-image:segmentation}
-        \end{figure}
-
-      \subsection{Breast Cancer Diagnosis} \label{background:medical-image:breast-cancer-diagnosis}
-        Breast cancer diagnosis is one of the main topics in medical image analysis research nowadays. Since breast cancer is one of the most spreaded and deadly diseases in the world, researchers try to find new ways of diagnosing it sooner and accurately.
-
-        The most common types of breast cancer start in the ducts that carry milk to the nipple or in the glands that produce the milk. These cancers are called ductal and lobular cancers respectively \cite{hunt2012diseases}. These tumors can form a lump in the breast tissue that is visible in breast exams like mammography/mammogram or MRI.
-
-        \afterpage{
-            \begin{figure}[t]
-                \centering
-                \begin{subfigure}[t]{0.5\textwidth}
-                  \centering
-                  \includegraphics[width=\linewidth]{"./img/ductal-cancer"}
-                  \caption{Ductal Ductal Cancer}
-                  \label{background:medical-image:breast-cancer-diagnosis:ductal}
-                \end{subfigure}%
-                \begin{subfigure}[t]{0.5\textwidth}
-                  \centering
-                  \includegraphics[width=\linewidth]{"./img/lobular-cancer"}
-                  \caption{Lobular Breast Cancer}
-                  \label{background:medical-image:breast-cancer-diagnosis:lobular}
-                \end{subfigure}
-                \caption[Schemes for Ductal and Lobular Breast Carcinomas]{Schemes for Ductal and Lobular Breast Carcinomas. Ductal Tumors form in the ducts that carry milk to the nipple. In the case of Lobular Tumors, they form in the breast lobules, the structures responsible for producing milk.\\Source.: \href{http://bit.ly/2DgnkFg}{http://bit.ly/2DgnkFg}, Accessed 11 Jan 2018}
-                \label{background:medical-image:breast-cancer-diagnosis:types}
-            \end{figure}
-        }
-
-        % ... Diagnostic Systems
-        \paragraph{Mammography/Mammogram}
-          Mammography is a method for breast cancer screening that uses X-rays to get a X-ray film of the breast \cite{starting2012mammography}. This exam is the oldest in breast examining and is the primary exam for cancer detection. Some advances have been made in the late years that include:
-
-          \begin{itemize}
-            \item Digital Mammography - also called full film mammography, is a method that converts X-rays into mammographic pictures, producing a digital image that can be used in \gls{cadx} systems without scanning. this method produces less error that the scanning of X-ray films;
-            \item Breast Tomosynthesis - also called 3D mammography, is a method where multiple images are retrieved from the breast, using different angles to produce a 3D model after reconstruction.
-          \end{itemize}
-
-          These methods can be used by \gls{cadx} systems to search for abnormal areas in the breast (e.g. abnormal masses) that could indicate cancer. \gls{cadx} systems nowadays use primarily film and digital mammographies, although tomosynthesis is starting to appear in breast cancer research. Some of the uses of these exams are presented in section \ref{problem:approaches}.
+      \paragraph{Exploration/Exploitation trade-off}
+        A key paradox in reinforcement learning methods is the exploration/exploitation trade-off. By exploring, an agent will choose something that it does not have information, but it can bring new and important knowledge. On the other hand, exploiting will secure expectations, because it will use already known things and will often produce expected results. When an agent first starts its interaction with the environment, it will explore in order to build its knowledge. After some time, it will exploit what it already knows, always looking for the maximum reward. % ...
 
     \section{Summary} \label{background:summary}
-      In this chapter it was presented the key concepts behind this dissertation. Since Deep Learning techniques was introduced, Machine Learning gained a new boost in research. With this, it is possible to build better \gls{cadx} systems to help doctors in their diagnostic tasks. Having this in mind, this dissertation proposes a Deep Learning approach to breast cancer diagnosis, making use of the concepts presented in the sections above. % ...
+      In this chapter the key concepts behind this dissertation were presented. Since Deep Learning techniques were introduced, Machine Learning gained a new boost in research. With this, it is possible to build better \gls{cadx} systems to help medical professionals in their diagnostic tasks. Having this in mind, this dissertation proposes a Deep Learning approach to breast cancer diagnosis, making use of the concepts presented in the sections above. % ...
 
-      For a better understanding of the concepts presented in this state of the art review, a conceptual map is presented in figure \ref{background:summary:concepts} on appendix \ref{tooling}.
+      For a better understanding of the concepts presented in this state of the art review, a conceptual map is presented in figure \ref{appendix:concepts} on appendix \ref{tooling}.
 
   % CHAPTER - Problem and Challenges --------------
   \chapter{Breast Cancer Diagnosis using Deep Learning}  \label{problem}
@@ -492,49 +495,142 @@
       The first uses of \gls{dl} methods in \gls{cadx} systems from breast cancer diagnosis were made by Sahiner et al. in 1996 \cite{sahiner1996classification}, where a \gls{cnn} was used to classify mass and normal breast tissue. This approach had a first phase of image preprocessing, where a \gls{roi} was selected and a series of operations (e.g. filters) were applied in order to facilitate the learning process by the \gls{cnn}. This two stage approach was used by other solutions, varying the preprocessing methods and the input image type, using mammographies, MRI or tomosynthesis (3D mammography).
       Mammographies are the most used exams for classification/segmentation tasks \cite{sahiner1996classification,fonseca2015automatic,huynh2016digital,dhungel2016automated}.  MRI \cite{dalmis2017using} and more lately tomosynthesis \cite{fotin2016detection} also contains some approaches, not being so expressive for lack of samples for training of \gls{dl} models.
 
-      Although recent approaches use features extracted with the use of \gls{dl} models, there are some approaches \cite{dhungel2016automated,kooi2016large,arevalo2016representation} that combine \gls{dl} classification with hand crafted features, designed by experts. All the knowledge extracted is used to train \gls{ml} and \gls{dl} models and, sometimes, to achieve better results than using only one group of features for training..
+      Although recent approaches use features extracted with the use of \gls{dl} models, there are some approaches \cite{dhungel2016automated,kooi2016large,arevalo2016representation} that combine \gls{dl} classification with hand crafted features, designed by experts. All the knowledge extracted is used to train \gls{ml} and \gls{dl} models and, sometimes, to achieve better results than using only one group of features for training.
 
     \section{Proposed Solution} \label{problem:proposal}
-      % ... Base Approach
-      The base approach for this dissertation is the one presented by Arevalo et al. in 2015 \cite{arevalo2016representation}. This approach separates the classification task into two main stages, like already used by some of the approaches in section \ref{problem:approaches}, preprocessing of input images and then a supervised learning of a \gls{dl} model to perform classification of benign and malign tumors.
+      \subsection{Base Approach}
+        % ... Base Approach
+        The base approach for this dissertation is the one presented by Arevalo et al. in 2015 \cite{arevalo2016representation}. This approach separates the classification task into three main stages, like already used by some of the approaches in section \ref{problem:approaches}: (i) preprocessing of input images, (ii) a supervised feature learning using a \gls{dl} model and finally (iii) the supervised learning of an \gls{svm} model to perform classification of benign and malign tumors.
 
-      The preprocessing phase, very often used in image recognition systems, tries to enhance image details, in order to facilitate the work of the feature extraction phase, increasing its performance. This stage, applied to the training dataset, uses the following processes:
+        The preprocessing phase, very often used in image recognition systems, tries to enhance image details, in order to facilitate the work of the feature extraction phase, increasing its performance. This stage, applied to the training dataset, uses the following processes:
 
-      \begin{enumerate}
-        \item The \gls{roi} is cropped, corresponding to a square around the lesion already outlined by an expert. This process will reduce image size, thus facilitating the training process;
-        \item A Data Augmentation process is applied to increase the number of samples by rotating the cropped images by 90, 180 and 270 degrees. This process will give the model more data to learn, increasing its training and possibly its performance. It will also prevent future overfitting, by creating a bigger diversity of data;
-        \item A global and local contrast normalization process is applied to all the samples. These filters are useful to overcome effects like difference of lightning between film images.
-      \end{enumerate}
+        \begin{enumerate}
+          \item The \gls{roi} is cropped, corresponding to a square around the lesion already outlined by an expert. This process will reduce image size, thus facilitating the training process;
+          \item A Data Augmentation process is applied to increase the number of samples by rotating the cropped images by 90, 180 and 270 degrees. This process will give the model more data to learn, increasing its training and possibly its performance. It will also prevent future overfitting, by creating a bigger diversity of data;
+          \item A global and local contrast normalization process is applied to all the samples. These filters are useful to overcome effects like difference of lightning between film images.
+        \end{enumerate}
 
-      Once prepared, the images are used to train a \gls{cnn} that creates a simpler representation (just features) that is later classified into benign or malign cancer using an SVM classifier. The use of this feature representation for the images is justified by the reduction in training time (it is cheaper to train an SVM using feature representation than using full image representation to train a \gls{cnn}). This approach reached an \gls{auc} of 0.822, outperforming the previous values already obtained by some of the authors when using HOG and HGD descriptors to represent an image/exam \cite{moura2013evaluation}. Using a set of hand crafted features, the model got a \gls{auc} value of 0.826.
+        Once prepared, the images are used to train a \gls{cnn} that creates a simpler representation (feature extraction process) that is later classified into benign or malign cancer using an \gls{svm} classifier. The use of this feature representation for the images is justified by the reduction in training time (it is cheaper to train an \gls{svm} using feature representation than using full image representation to train a \gls{cnn}). This approach reached an \gls{auc} of 0.822, outperforming the previous values already obtained by some of the authors when using computer vision methods like HOG\footnote{Histogram of Oriented Gradients} and HGD\footnote{Histogram of Gradient Divergence} descriptors to represent an image/exam \cite{moura2013evaluation}. Adding a set of hand crafted features, the model got a \gls{auc} value of 0.826.
 
-      % ... My Proposal - RPD
-      The objective of this dissertation is to take as base approach the solution presented in \cite{arevalo2016representation} and increase its performance in classifying benign and malign tumors using instances of the BCDR benchmarking dataset\footnote{\href{bcdr.inegi.up.pt}{bcdr.inegi.up.pt}} to train the Deep Learning models developed. The proposed solution will consist in 3 steps characterized by:
+      \subsection{System Overview} \label{problem:proposal:architecture}
+        % ... My Proposal - Final
+        The objective of this dissertation is to take as base approach the solution presented in \cite{arevalo2016representation} and increase its performance in classifying benign and malign tumors using instances of the BCDR benchmarking dataset \cite{lopez2012bcdr}. To achieve this performance improvement, the feature extraction model was augmented, with the use of a known architecture that has proven to have a great performance in feature extraction. In order to check the best combination of processes to overcome the problem presented, the following combinations were tested:
 
-      \begin{itemize}
-        \item Design and implementation of new Deep Learning models, with larger architectures, for the feature learning stage. With a larger architecture, the model will theoretically be able to apprehend more and different features, allowing it to generalize to new cases easily;
-        \item Adapt all the preprocessing structures in order to use new image modalities other than cropping and contrast normalization. Using various filters, some features will become more visible for the feature learning phase, theoretically improving its performance in learning the data representation;
-        \item Utilize other instances of the BCDR dataset to train the \gls{dl} models other than the ones used in \cite{arevalo2016representation}, in particular the BCDR-DM instance. This instance contains images in high resolution which will present new challenges in both the preprocessing and the feature learning phases.
-      \end{itemize}
+        \begin{itemize}
+          \item Use of a Deep Learning model to perform feature extraction and also to perform the classification task, with the use of a softmax classification layer as output of the \gls{dl} model. When predicting a sample, the model will produce a binary classification (benign or malign);
+          \item Use of a Deep Learning model to perform feature extraction and later feed those features to an \gls{svm} classifier. The use of this \gls{svm} model is justified with the fact that it is cheaper to train it then to train the fully-connected from the \gls{dl} model;
+          \item Use of a Deep Learning model to perform feature extraction and later feed those features alongside with a set of hand-crafted features to an \gls{svm} and a \gls{mlp} classifier.
+        \end{itemize}
 
-      % ... My Proposal - Final
-      % ...
+        The scheme presented in figure \ref{fig:architecture} explains the main workflow of the system.
 
-      \subsection{System Architecture} \label{problem:proposal:architecture}
-        % ...
+        \afterpage{
+          \begin{figure}[t]
+            \centering
+            \includegraphics[width=\textwidth]{./img/workflow}
+            \caption{System's main workflow}
+            \label{fig:architecture}
+          \end{figure}
+        }
+
+        \paragraph{Deep Learning Model}
+          A Deep Learning model is a great tool to perform both feature extraction and classification processes, as referred before. So, a \gls{dl} model was developed to perform this tasks in our system. The model is based on Google's Inception V3 architecture \cite{szegedy2015rethinking}, which scheme can be seen on appendix \ref{appendix:inception-v3}. This architecture is an update to GoogLeNet, winner of the 2014 ImageNet contest, that has also been trained on the ImageNet dataset, where it achieved a top-1 accuracy (correct answer is the the prediction with the highest probability) of 78.0\% and a top-5 accuracy (correct answer is in the 5 predictions with higher probability) of 93.9\%. Since this architecture can score high accuracy values in the 1000 class ImageNet dataset, it can be fine-tuned to our 2 class dataset and, theoretically, achieve similar values of accuracy.
+
+        \paragraph{Classifiers}
+          After the feature extraction process, these can be used to represent an image in a simpler way. With this, a simpler classifier (\gls{svm}, \gls{mlp}, etc.) can be used to make a representation learning process. That is the main basis of neural networks: (i) feature learning in the hidden layers and (ii) classification of the features extracted using the output layer. The feature learning process gives a compressed representation of the input image, allowing us to reduce training times and to experiment different classifiers using the same features extracted using the \gls{dl} model. With the use of hand-crafted features alongside the features extracted with the \gls{dl} model, the performance can even increase, through the introduction of a human factor, since this set of features is extracted with the help of a medical professional.
 
     \section{Summary} \label{problem:summary}
-      % ...
+      In this chapter the solution to the problem presented was detailed, presented some already existing solutions, alongside our proposed approach. Our approach follows an approach of feature classification, where these features are extracted using a Deep Learning model. Along with these features, there are included hand-crafted features, designed and extracted by experts, which adds the possibility of an improvement in performance/accuracy of the system. The following chapters will give the implementation details and the results obtained using our approach.
 
   % CHAPTER - Development -------------------------
   \chapter{Development} \label{development}
-    % ...
+    This chapter presents details about the development phase of this dissertation. In general, the information presented focus on development details about the three phases of the system's workflow (preprocessing, feature extraction and classification) presented on section \ref{problem:proposal:architecture}. The following sections will present all the implementation details about the system developed.
 
-    \section{Decisions} \label{development:decisions}
-      % ...
+    \begin{table}[t]
+      \centering
+      \begin{tabular}{ccc}
+        \hline\\[-1em]
+        & \textbf{CPU} & \textbf{GPU} \\\hline\\[-1em]
+        Manufacturer & Intel\textsuperscript{\textregistered} & NVIDIA\textsuperscript{\textregistered} \\\hline\\[-1em]
+        Model & i7-7700 & GeForce GTX 1080 \\\hline\\[-1em]
+        \#Devices & 1 & 2 \\\hline\\[-1em]
+        Release Date & Q1'17 & Q2'16 \\\hline\\[-1em]
+        $\mu$Arch & Kaby Lake & Pascal \\\hline\\[-1em]
+        \#Cores & 4 & 2560 \\\hline\\[-1em]
+        Frequency & 3600 & 1607 \\\hline\\[-1em]
+        L1 Cache & 2 x 32KB/core & 96KB/SM \\\hline\\[-1em]
+        L2 Cache & 256KB/core & 4MB \\\hline\\[-1em]
+        L3 Cache & 8MB & N/A \\\hline\\[-1em]
+        Memory & 16GB (RAM) & 8GB \\\hline\\[-1em]
+        Max Memory Bandwidth & 38.4GB/s & 320GB/s \\\hline\\[-1em]
+      \end{tabular}
+      \caption[Development system characteristics]{Development system's CPU\footnotemark\ and GPU's\footnotemark\ characteristics. This table presents the hardware that the systems used for the \gls{dl} model training possess. The use of 2 GPU's made possible a theoretical gain of 2x in the training time.}
+      \label{tab:hw-details}
+    \end{table}
 
     \section{Implementation} \label{development:implementation}
-      % ...
+
+      This \gls{cadx} system was developed within a system which details are specified in table \ref{tab:hw-details} and all the code listings can be seen in the appendix \ref{listings}. This system allowed, with the use of 2 GPU's, to reduce training times of the Deep Learning models and all the classifiers. The system was developed using the Python language, because of its versatility and abundance of software libraries focused in the development of Deep Learning applications. The most well known libraries are:
+
+      \begin{itemize}
+          \item TensorFlow, developed by Google;
+          \item Theano, developed by Université de Montréal;
+          \item CogNitive TooKit, also known as CNTK, developed by Microsoft.
+          \item Keras, an open source process that provides a high level wrapper to the libraries presented in the previous points.
+      \end{itemize}
+
+      For this system's implementation, the Keras library was selected, using TensorFlow backend, because of the simplicity of its API and the possibility of using highly optimized \gls{dl} APi's like TensorFlow in a quick and easy way. The possible gain of performance with the use of native TensorFlow was not considered as a factor, because it could not overcome the gain in development time.
+
+      \subsection{The BCDR Dataset}
+
+        \footnotetext{CPU details: \href{https://bit.ly/2uSSTlF}{https://bit.ly/2uSSTlF}}
+        \footnotetext{GPU details: \href{https://bit.ly/2IwD5Hh}{https://bit.ly/2IwD5Hh}}
+
+        The BCDR dataset \cite{lopez2012bcdr} is a benchmarking dataset that contains annotated images from mammographies (film and digital) from patients in the northern region of Portugal. This dataset studies that contain both biopsy proven \gls{mlo} and \gls{cc} views of the mammography. The lesions were mannualy segmented by medical experts at Centro Hospitalar São João and compiled in a CSV file that could be used to read and prepare the dataset by a computer program. Along with the outlines CSV, there is also a features CSV file, that contains a set of hand-crafted features that can also be used in classification processes. These features will be explored later on this document.
+
+        % ...
+
+        Having downloaded any of the BCDR instances (film or digital), we read the CSV into memory, that contains information like image filename, (x,y) outline points of the lesion and the classification (benign of malign). Python's libraries like \textit{csv} and \textit{Scikit-Image} were useful in this process.
+
+      \subsection{Preprocessing}
+        The preprocessing phase is a set of process that takes care of preparing the dataset images to be fed to feature extraction \gls{dl} model. This phase uses the \textit{OpenCV} and \textit{Scikit-Image} libraries to implement these processes. The processes include cropping of the images to fit the input shape of the \gls{dl} model, a data augmentation process and the application of filters to enhance features. The preprocessing pipeline can be seen in figure \ref{}.
+
+        \paragraph{Cropping}
+          The Inception V3 architecture, which was used for the development of the \gls{dl} model used in this system, requires that its input (the breast cancer images) has a resolution of 224x224. Having the (x,y) outline points, read from the outlines CSV file, we have the region were the lesion is located. With this, a 224x224 region is cropped arround the \gls{roi}. If the lesion is located is a region bigger than 224x224, it is zoom down to fit the 224x224 resolution.
+
+        \paragraph{Data Augmentation}
+          In order to increase the dataset's domain and quantity of information, data augmentation processes are used. In this system's partical case, the process used to increase the dataset's domais was the creation of new images by the use of a set of rotations (0, 90, 180 and 270 degrees), both in a normal and horizontally flipped image. This creates 7 new samples for each image, thereby increasing the size and variability of the dataset. This type of process can also prevent the overfitting process with the increase in the training domain.
+
+        \paragraph{Filters for Feature Enhancement}
+          In order to have a better feature learning process, the features to be learned need to be visible in order for the convolution filters to seize those features. Therefore, image filters are applied to enhance those features. In Arevalo et al. \cite{arevalo2016representation} approach, the filters applied were the global contrast normalization and the local contrast normalization. In our approach, just the global contrast normalization was applied, because of the lack of performance gain with the adition of a local contrast normalization.
+
+          Global contrast normalization is a process used to normalize images exposed to different lightning conditions. This process subtracts the mean of the pixels in an image to every pixel. In formal terms, we can define the global contrast normalization as:
+
+          \begin{equation}
+            Y_{i,j}\ =\ X_{i,j}\ -\ \bar{x}
+          \end{equation}
+
+          where $X$ is the initial image, $\bar{x}$ represent the mean intensity of the pixels in image $X$, $r$ is the dimension of the image, in this case 224, and $Y$ is the resulting image. In our approach, we used a different approach, present by \cite{}, that garanties that the standard deviation accross all pixels is set to a constant $s$. In formal terms, our implementation (adapted to grayscale images) is defined by:
+
+          \begin{equation}
+            Y_{i,j}\ =\ s\ *\ \frac{X_{i,j}\ -\ \bar{x}}{max\ \begin{Bmatrix}
+                      \ \epsilon,\ \sqrt{\lambda\ +\ \frac{1}{r^2}\sum_{i}\sum{j}\ (X_{i,j}\ -\ \bar{x})^2}\
+                      \end{Bmatrix}}
+          \end{equation}
+
+          where $X$ is the initial image, $\bar{x}$ represent the mean intensity of the pixels in image $X$, $\lambda$ is a term to bias the standard deviation, and $Y$ is the resulting image. In this case, the denominator is constrained to be at least $\epsilon$. The Python code for this transformation can be seen in appendix \ref{listings:gcn}
+
+      \subsection{Feature Extraction Model}
+        % ...
+
+        \paragraph{Train/Test Division}
+          % ...
+
+      \subsection{Classifiers}
+        % ...
+
+        \paragraph{Hand-Crafted Features}
+          % ...
 
       \subsection{Performance Improving} \label{development:implementation:performance}
         % ...
@@ -587,21 +683,55 @@
 
     % Add appendix chapters
     \chapter{Support material} \label{support-material}
-      Auxiliary results which are not main-stream; or
+      \section{Inception V3 Architecture} \label{appendix:inception-v3}
+        \begin{figure}[h]
+          \centering
+          \includegraphics[angle=90,width=0.32\textwidth]{"./img/inception-v3"}
+          \caption[Inception V3 Architecture]{Inception V3 Architecture.}
+        \end{figure}
 
     \chapter{Details of results} \label{results}
       Details of results whose length would compromise readability of main text; or
 
     \chapter{Listings} \label{listings}
-      Specifications and Code Listings: should this be the case; or
+      \section{Global Contrast Normalization implementation} \label{listings:gcn}
+        \begin{lstlisting}[language=Python]
+def global_contrast_normalization(X, s, lmda, epsilon):
+    # Calculate mean of intensities
+    X_average = np.mean(X)
+    # Subtract mean to every pixel
+    X = X - X_average
+    # Final operation to make stddev equal to s
+    contrast = np.sqrt(lmda + np.mean(X**2))
+    X = s * X / max(contrast, epsilon)
+    return X
+        \end{lstlisting}
+
+      \section{ZCA Whitening implementation} \label{listings:zca}
+        \begin{lstlisting}
+def zca_whitening(X):
+    # Covariance matrix [column-wise variables]: Sigma = (X-mu)' * (X-mu) / N
+    sigma = np.cov(X, rowvar=True) # [M x M]
+    # Singular Value Decomposition. X = U * np.diag(S) * V
+    U,S,V = np.linalg.svd(sigma)
+        # U: [M x M] eigenvectors of sigma.
+        # S: [M x 1] eigenvalues of sigma.
+        # V: [M x M] transpose of U
+    # Whitening constant: prevents division by zero
+    epsilon = 1e-5
+    # ZCA Whitening matrix: U * Lambda * U'
+    ZCAMatrix = np.dot(U, np.dot(np.diag(1.0/np.sqrt(S + epsilon)), U.T)) # [M x M]
+    X = np.dot(ZCAMatrix, X)
+    return X
+        \end{lstlisting}
 
     \chapter{Tooling} \label{tooling}
       \section{Dissertation Conceptual Map}
         \begin{figure}[h]
           \centering
           \includegraphics[angle=90,width=0.5\textwidth]{"./img/mind-map"}
-          \caption[Dissertation Conceptual Map]{Dissertation Conceptual Map. }
-          \label{background:summary:concepts}
+          \caption[Dissertation Conceptual Map]{Dissertation Conceptual Map.}
+          \label{appendix:concepts}
         \end{figure}
 
     %Anyone using \Latex\ should consider having a look at \TUG,
