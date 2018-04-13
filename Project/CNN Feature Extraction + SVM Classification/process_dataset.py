@@ -77,10 +77,11 @@ if __name__ == "__main__":
 	parser.add_argument('-b', '--batch-size', dest='batch_size', help='number of batches to use for training', default=8)
 	parser.add_argument('-v', '--cross-validation', dest='validation', help='whether to evaluate model using cross validation (10-fold)', action='store_true')
 	parser.add_argument('-e', '--epochs', dest='epochs', help='number of training epochs', default=30)
-	parser.add_argument('-d', '--device', dest='device', help='where to run the training (GPU index)', default=0)
+	parser.add_argument('-d', '--device', dest='device', help='where to run the training (GPU index)', default=None)
 	args = parser.parse_args()
 
 	# Imports
+	import math
 	import time
 	import keras
 	import cv2 as cv
@@ -90,8 +91,7 @@ if __name__ == "__main__":
 
 	from datasets import bcdr
 	from sklearn.svm import SVC
-	from sklearn.decomposition import PCA
-	from sklearn.model_selection import StratifiedKFold, train_test_split
+	from sklearn.model_selection import KFold, train_test_split
 	from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc
 
 	from keras import backend as K
@@ -105,35 +105,53 @@ if __name__ == "__main__":
 
 	# Tensorflow verbosity control
 	os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
+	# Set default device (CUDA capable GPU)
 	import tensorflow as tf
-
-	with tf.device('/device:GPU:{}'.format(args.device)):
+	if args.device is None:
+		device = '/cpu:0'
+	else:
+		device = '/device:GPU:{}'.format(args.device)
+	with tf.device(device):
 		# Numpy seed, for reproducibility
-		np.random.seed(123)
-
+		seed = 7
+		np.random.seed(seed)
+		# learning rate schedule
+		def step_decay(epoch):
+			initial_lrate = 0.1
+			drop = 0.5
+			epochs_drop = 1.0
+			lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
+			return lrate
 		# BCDR data, shuffled and split between train and test sets
-		images = np.array([]).reshape(-1, 224, 224, 3)
-		labels = np.array([])
+		images = np.array([]).reshape(-1, 4, 224, 224, 3)
+		labels = np.array([]).reshape(-1, 4)
 		# Join instance images
 		for instance in args.instances:
-			(img, lbs) = bcdr.load_data(instance, save_rois=args.save, target_size=(224, 224, 3))
+			(img, lbs) = bcdr.load_data(instance, save_rois=args.save, target_size=(224, 224))
 			images = np.append(images, img, axis=0)
 			labels = np.append(labels, lbs, axis=0)
 		# Split in train and test data
-		kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=12345)
+		kfold = KFold(n_splits=10, shuffle=True, random_state=12345)
 		cvscores = []
 		i = 1
 		# Check if a network exists
 		if not os.path.isfile(os.path.join(os.getcwd(), args.PATH, 'cnn_model.json')):
 			# Feature Extraction Model
-			print('[INFO] Fine-tuning InceptionV3 model for feature extration...\n')
-			# prepare a tensorboard callback
+			print('\n[INFO] Fine-tuning InceptionV3 model for feature extration...')
+			# prepare callbacks
 			tbCallBack = keras.callbacks.TensorBoard(log_dir='./Graph', histogram_freq=0, write_graph=True, write_images=True)
+			earlyStopCallback = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.01, patience=10, verbose=1, mode='auto')
+			# reduceLRCallback = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1, min_lr=1e9)
+			lrScheduleCallback = keras.callbacks.LearningRateScheduler(step_decay)
 			if args.validation:
 				# train the model using 10-Fold Cross Validation
 				for train, test in kfold.split(images, labels):
-					print('[TRAINING] Iteration {}:'.format(i))
+					print('\n[TRAINING] Iteration {}:'.format(i))
+					# Split train and test data
+					x_train = images[train].reshape(images[train].shape[0] * images[train].shape[1], images[train].shape[2], images[train].shape[3], images[train].shape[4])
+					y_train = labels[train].flatten()
+					x_test = images[test].reshape(images[test].shape[0] * images[test].shape[1], images[test].shape[2], images[test].shape[3], images[test].shape[4])
+					y_test = labels[test].flatten()
 					# Measure time
 					start = time.time()
 					# Load base model
@@ -150,23 +168,34 @@ if __name__ == "__main__":
 						model = multi_gpu_model(model, gpus=int(args.gpus))
 					# Compile model
 					model.compile(optimizer=SGD(lr=0.001, decay=1e-9, momentum=0.9, nesterov=True),
-						loss='categorical_crossentropy',
+						loss='binary_crossentropy',
 						metrics=['accuracy'])
 					# Fit the model
-					model.fit(images[train], to_categorical(labels[train]), batch_size=int(args.batch_size), epochs=args.epochs, verbose=1, callbacks=[tbCallBack], shuffle=True, validation_data=(images[test], to_categorical(labels[test])))
+					model.fit(x_train, to_categorical(y_train), batch_size=int(args.batch_size), epochs=int(args.epochs), verbose=1, callbacks=[tbCallBack, earlyStopCallback, reduceLRCallback], shuffle=True, validation_data=(x_test, to_categorical(y_test)))
 					# Measure and print execution time
 					end = time.time()
-					print('[METRICS] Execution time: {}ms'.format(end-start))
+					print('\n[METRICS] Execution time: {}ms'.format(end-start))
 					# Evaluate the model
-					scores = model.evaluate(images[test], to_categorical(labels[test]), verbose=0)
-					print('[RESULTS] Accuracy: {}%'.format(scores[1]*100))
+					scores = model.evaluate(x_test, to_categorical(y_test), verbose=0)
+					print('\n[RESULTS] Accuracy: {}%'.format(scores[1]*100))
 					cvscores.append(scores[1] * 100)
-					gc.collect()
+					del x_train
+					del y_train
+					del x_test
+					del y_test
+					del model
+					del base_model
+					del x
+					del predictions
 					i = i+1
-				print('[RESULTS] Final Results: {}% (+/- {}%)'.format(np.mean(cvscores), np.std(cvscores)))
+				print('\n[RESULTS] Final Results: {}% (+/- {}%)'.format(np.mean(cvscores), np.std(cvscores)))
 			else:
 				# Split train and test data
 				x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=12345)
+				x_train = x_train.reshape(x_train.shape[0] * x_train.shape[1], x_train.shape[2], x_train.shape[3], x_train.shape[4])
+				y_train = y_train.flatten()
+				x_test = x_test.reshape(x_test.shape[0] * x_test.shape[1], x_test.shape[2], x_test.shape[3], x_test.shape[4])
+				y_test = y_test.flatten()
 				# Measure time
 				start = time.time()
 				# Load base model
@@ -182,39 +211,44 @@ if __name__ == "__main__":
 				if args.gpus is not None:
 					model = multi_gpu_model(model, gpus=int(args.gpus))
 				# Compile model
-				model.compile(optimizer=SGD(lr=0.001, decay=1e-9, momentum=0.9, nesterov=True),
-					loss='categorical_crossentropy',
+				model.compile(optimizer=SGD(lr=1.0, decay=1e-9, momentum=0.9, nesterov=True),
+					loss='binary_crossentropy',
 					metrics=['accuracy'])
 				# Fit the model
-				model.fit(x_train, to_categorical(y_train), batch_size=int(args.batch_size), epochs=args.epochs, verbose=1, callbacks=[tbCallBack], shuffle=True, validation_data=(x_test, to_categorical(y_test)))
+				model.fit(x_train, to_categorical(y_train), batch_size=int(args.batch_size), epochs=int(args.epochs), verbose=1, callbacks=[tbCallBack, lrScheduleCallback, earlyStopCallback], shuffle=True, validation_data=(x_test, to_categorical(y_test)))
 				# Measure and print execution time
 				end = time.time()
-				print('[METRICS] Execution time: {}ms'.format(end-start))
+				print('\n[METRICS] Execution time: {}ms'.format(end-start))
 				# Evaluate the model
 				scores = model.evaluate(x_test, to_categorical(y_test), verbose=0)
-				print('[RESULTS] Accuracy: {}%'.format(scores[1]*100))
+				print('\n[RESULTS] Accuracy: {}%'.format(scores[1]*100))
 			# Save model
 			save_model_json(model=model, fich='./cnn_model.json')
 			save_weights_hdf5(model=model, fich='./cnn_weights.h5')
 		else:
 			# Split train and test data
 			x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=12345)
+			x_train = x_train.reshape(x_train.shape[0] * x_train.shape[1], x_train.shape[2], x_train.shape[3], x_train.shape[4])
+			y_train = y_train.flatten()
+			x_test = x_test.reshape(x_test.shape[0] * x_test.shape[1], x_test.shape[2], x_test.shape[3], x_test.shape[4])
+			y_test = y_test.flatten()
 			# Load pretrained model
-			print('[INFO] Loading InceptionV3 pretrained model...\n')
+			print('\n[INFO] Loading InceptionV3 pretrained model...')
 			model = load_model_json(fich='./cnn_model.json')
 			load_weights_hdf5(model=model, fich='./cnn_weights.h5')
 			model.compile(optimizer=SGD(lr=0.001, decay=1e-9, momentum=0.9, nesterov=True),
 				loss='categorical_crossentropy',
 				metrics=['accuracy'])
-			print('[INFO] InceptionV3 pretrained model successfully loaded\n')
+			print('\n[INFO] InceptionV3 pretrained model successfully loaded')
 		# Evaluate the model
 		real, pred = [], []
 		for i in range(len(x_test)):
 			prediction = model.predict(np.array([x_test[i]]))
-			real.append(int(y_test[i]))
-			pred.append(int(np.argmax(prediction[0], axis=-1)))
-		# print(real)
-		# print(pred)
+			real.append(float(y_test[i]))
+			pred.append(np.argmax(prediction[0], axis=-1))
+		# Print Confusion Matrix
+		print('Confusion Matrix: ')
+		print(confusion_matrix(real, pred))
 		# Plot ROC curve
 		fpr = dict()
 		tpr = dict()
@@ -264,6 +298,8 @@ if __name__ == "__main__":
 			print('[INFO] Accuracy: {}\n'.format(accuracy_score(real, pred)))
 			# Plot ROC curve
 			fpr['svm'], tpr['svm'], _ = roc_curve(np.array(real), np.array(pred))
+			print(fpr['svm'])
+			print(tpr['svm'])
 			roc_auc['svm'] = auc(fpr['svm'], tpr['svm'])
 			plt.plot(fpr['svm'], tpr['svm'], color='red',
 					 lw=lw, label='DL Model + SVM (area = %0.3f)' % roc_auc['svm'])
