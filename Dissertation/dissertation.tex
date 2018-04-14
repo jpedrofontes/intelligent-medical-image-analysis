@@ -51,6 +51,8 @@
 \newacronym{svm}{SVM}{Support Vector Machine}
 \newacronym{mlo}{MLO}{Medio-Lateral Oblique}
 \newacronym{cc}{CC}{Craniocaudal}
+\newacronym{fc}{FC}{Fully-Connected}
+\newacronym{relu}{ReLU}{Rectified Linear Unit}
 % ...
 
 % these could go in an acronyms.tex file, and loaded with:
@@ -212,6 +214,8 @@
         \item Test the algorithms with higher performance in a benchmarking dataset of images of patients with breast cancer.
       \end{itemize}
 
+      ...
+
     \section{Document Structure} \label{intro:organization}
       This dissertation is organized in \begin{NoHyper}\ref{conclusion}\end{NoHyper} chapters that describe the application area and present a solution to the problem of diagnosing breast cancer using Deep Learning\index{Deep Learning} .
 
@@ -264,7 +268,7 @@
           Basic training of neural networks will give the input connections of a neuron different weights, modifying the output value of a neuron. After this training phase, these weights will give a bigger role to more important connections. With this, the input value of a connection will be multiplied by the connection's weight. All values from input connections will be integrated and reduced to a single value (usually all values are summed). Additionally, it can be introduced a value (+1) called \textit{bias}, that ensures that certain conditions are established for each node. Giving input values, the network will produce an output label (e.g. class) based on its training.
 
         \paragraph{Activation}
-          When input arrives at the neuron, it is computed based on the weights and bias and an output value is calculated, also called the neuron activation. This activation will be the value outputted to all the neuron's connections. To produce this output, a transfer function is used to limit the output range and to introduce a non-linear component in the output value, usually giving the network the capacity to approximate any function \cite{leshno1993multilayer}. The most used transfer functions are softmax, hyperbolic tangent (tanh) or sigmoid. It is usual that transfer functions give an output in the interval $[0,1]$, but uses of functions with intervals $[-1,1]$ and even $[-\infty,+\infty]$ have proven to give good results in certain cases \cite{karlik2011performance}.
+          When input arrives at the neuron, it is computed based on the weights and bias and an output value is calculated, also called the neuron activation. This activation will be the value outputted to all the neuron's connections. To produce this output, a transfer function is used to limit the output range and to introduce a non-linear component in the output value, usually giving the network the capacity to approximate any function \cite{leshno1993multilayer}. The most used transfer functions are Softmax, hyperbolic tangent (tanh) or sigmoid. It is usual that transfer functions give an output in the interval $[0,1]$, but uses of functions with intervals $[-1,1]$ and even $[-\infty,+\infty]$ have proven to give good results in certain cases \cite{karlik2011performance}.
 
           Therefore, in order to get the output $\boldsymbol{y}$ of a neuron $n$, with input $\boldsymbol{x}$:
 
@@ -308,17 +312,25 @@
       % ... Some Definitions
       Medical Image Analysis is a sub-field of computer vision that concerns with knowledge extraction from medical images/exams like X-ray, ultrasound or MRI \cite{dhawan2011medical}. After obtaining these images, computers analyze them in order to determine the presence or absence of lesions, only visible through the use of risky surgical interventions.
 
+      ...
+
       % ... Evolution
       The process of analyzing these images began to be done only by experts, who would determine the existence or absence of these lesions through the visual analysis of the images obtained. With the advance of technology, medical image analysis through computer become an aid to specialists, since it facilitated diagnostic processes using computer vision algorithms to make certain processes easier, such as organ segmentation \cite{karssemeijer1988recognition, punia2013review} or lesion classification \cite{wolberg1994machine} . With the advent of machine learning algorithms, it was possible to teach the machines how to diagnose based on features extracted from the images obtained by medical imaging. By using variety-rich datasets, covering a significant number of possible cases, it would be possible to obtain good diagnostic results. An example proposed by López et al. in 2007 \cite{lopez2007breast} was to identify cases of breast cancer using machine learning tools.
 
+      ...
+
       % ... Use of Deep Learning
-      As was the norm for traditional machine learning algorithms, they reached a point where it was not possible to obtain better results than the ones obtained at the time, already shown in previous sections. With this, Deep Learning became the first aim in research in medical image analysis. As already reported in section \ref{background:deep-learning}, Deep Learning algorithms can learn features directly from raw data (e.g. image pixels), so the intervention of an expert for handcrafted feature extraction is no longer necessary for the algorithms to do its job. These algorithms can achieve a better performance than traditional machine learning techniques, which will lead to better results in diagnostic and to the salvation of many lives.
+      As was the norm for traditional machine learning algorithms, they reached a point where it was not possible to obtain better results than the ones obtained at the time, already shown in previous sections. With this, Deep Learning became the first aim in research in medical image analysis. As it will be shown in section \ref{background:deep-learning}, Deep Learning algorithms can learn features directly from raw data (e.g. image pixels), so the intervention of an expert for handcrafted feature extraction is no longer necessary for the algorithms to do its job. These algorithms can achieve a better performance than traditional machine learning techniques, which will lead to better results in diagnostic and to the salvation of many lives.
+
+      ...
 
       \paragraph{Classification}
         Most Deep Learning approaches to medical image analysis tend to classification tasks. In here, one can find examples like image/exam classification (using the whole image, the output will be the existence or not of, e.g. a disease) or lesion classification (using an image, it will assign a class into parts of the image, giving a single image multiple classes).
 
       \paragraph{Segmentation}
         Another task with great importance in medical image analysis where Deep Learning techniques are used is segmentation. In here, organ, subsection or lesion segmentation are the major areas of research. Using segmentation in diagnosis, the expert's work will be facilitated be the visual feedback created by the segmetation process. An example of brain matter and fluids segmentation is presented in figure \ref{background:medical-image:segmentation}.
+
+        ...
 
         \begin{figure}[t]
           \centering
@@ -339,19 +351,19 @@
                 \begin{subfigure}[t]{0.5\textwidth}
                   \centering
                   \includegraphics[width=\linewidth]{"./img/ductal-cancer"}
-                  \caption{Ductal Ductal Cancer}
                   \label{background:medical-image:breast-cancer-diagnosis:ductal}
                 \end{subfigure}%
                 \begin{subfigure}[t]{0.5\textwidth}
                   \centering
                   \includegraphics[width=\linewidth]{"./img/lobular-cancer"}
-                  \caption{Lobular Breast Cancer}
                   \label{background:medical-image:breast-cancer-diagnosis:lobular}
                 \end{subfigure}
                 \caption[Schemes for Ductal and Lobular Breast Carcinomas]{Schemes for Ductal and Lobular Breast Carcinomas. Ductal Tumors form in the ducts that carry milk to the nipple. In the case of Lobular Tumors, they form in the breast lobules, the structures responsible for producing milk.\\Source.: \href{http://bit.ly/2DgnkFg}{http://bit.ly/2DgnkFg}, Accessed 11 Jan 2018}
                 \label{background:medical-image:breast-cancer-diagnosis:types}
             \end{figure}
         }
+
+        ...
 
         % ... Diagnostic Systems
         \paragraph{Mammography/Mammogram}
@@ -363,6 +375,8 @@
           \end{itemize}
 
           These methods can be used by \gls{cadx} systems to search for abnormal areas in the breast (e.g. abnormal masses) that could indicate cancer. \gls{cadx} systems nowadays use primarily film and digital mammographies, although tomosynthesis is starting to appear in breast cancer research. Some of the uses of these exams are presented in section \ref{problem:approaches}.
+
+        ...
 
     \section{Deep Learning} \label{background:deep-learning}
       % ... Some Definitions
@@ -379,7 +393,7 @@
           \begin{figure}[t]
             \centering
             \includegraphics[width=.99\textwidth]{"./img/cnn-architecture"}
-            \caption[Example of a CNN architecture]{Example of a \gls{cnn} architecture. Given an input image, the \gls{cnn} will output the probabilities that the input belongs to each of the classes trained by the model. In this model, the convolutional and pooling layers represent the feature extraction phase and the fully connected layers represent the classification phase.\\
+            \caption[Example of a CNN architecture]{Example of a \gls{cnn} architecture. Given an input image, the \gls{cnn} will output the probabilities that the input belongs to each of the classes trained by the model. In this model, the convolutional and pooling layers represent the feature extraction phase and the \gls{fc} layers represent the classification phase.\\
             Source.: \href{http://bit.ly/2CRmiQ3}{http://bit.ly/2CRmiQ3}, Accessed 2 December 2017}
             \label{background:deep-learning:cnn:architecture}
           \end{figure}
@@ -398,8 +412,7 @@
           Although \glspl{cnn} where made for 2D image analysis, the convolution process can be generalized for 3D. Instead of using filters in two dimensions, it is used a 3D version of convolution filters.
           These networks are useful in cases like video analysis \cite{ji20133d,diba2016efficient}, 3D object recognition \cite{maturana2015voxnet,socher2012convolutional,huang2016point} or 3D image segmentation \cite{kamnitsas2017efficient}.
 
-          % ...
-          % ...
+          ...
 
       \subsection{Recurrent Neural Networks}
         % ... Some Definitions
@@ -517,7 +530,7 @@
         The objective of this dissertation is to take as base approach the solution presented in \cite{arevalo2016representation} and increase its performance in classifying benign and malign tumors using instances of the BCDR benchmarking dataset \cite{lopez2012bcdr}. To achieve this performance improvement, the feature extraction model was augmented, with the use of a known architecture that has proven to have a great performance in feature extraction. In order to check the best combination of processes to overcome the problem presented, the following combinations were tested:
 
         \begin{itemize}
-          \item Use of a Deep Learning model to perform feature extraction and also to perform the classification task, with the use of a softmax classification layer as output of the \gls{dl} model. When predicting a sample, the model will produce a binary classification (benign or malign);
+          \item Use of a Deep Learning model to perform feature extraction and also to perform the classification task, with the use of a Softmax classification layer as output of the \gls{dl} model. When predicting a sample, the model will produce a binary classification (benign or malign);
           \item Use of a Deep Learning model to perform feature extraction and later feed those features to an \gls{svm} classifier. The use of this \gls{svm} model is justified with the fact that it is cheaper to train it then to train the fully-connected from the \gls{dl} model;
           \item Use of a Deep Learning model to perform feature extraction and later feed those features alongside with a set of hand-crafted features to an \gls{svm} and a \gls{mlp} classifier.
         \end{itemize}
@@ -534,7 +547,7 @@
         }
 
         \paragraph{Deep Learning Model}
-          A Deep Learning model is a great tool to perform both feature extraction and classification processes, as referred before. So, a \gls{dl} model was developed to perform this tasks in our system. The model is based on Google's Inception V3 architecture \cite{szegedy2015rethinking}, which scheme can be seen on appendix \ref{appendix:inception-v3}. This architecture is an update to GoogLeNet, winner of the 2014 ImageNet contest, that has also been trained on the ImageNet dataset, where it achieved a top-1 accuracy (correct answer is the the prediction with the highest probability) of 78.0\% and a top-5 accuracy (correct answer is in the 5 predictions with higher probability) of 93.9\%. Since this architecture can score high accuracy values in the 1000 class ImageNet dataset, it can be fine-tuned to our 2 class dataset and, theoretically, achieve similar values of accuracy.
+          A Deep Learning model is a great tool to perform both feature extraction and classification processes, as referred before. So, a \gls{dl} model was developed to perform this tasks in our system. The model is based on Google's InceptionV3 architecture \cite{szegedy2015rethinking}, which scheme can be seen on appendix \ref{appendix:inception-v3}. This architecture is an update to GoogLeNet, winner of the 2014 ImageNet contest, that has also been trained on the ImageNet dataset, where it achieved a top-1 accuracy (correct answer is the the prediction with the highest probability) of 78.0\% and a top-5 accuracy (correct answer is in the 5 predictions with higher probability) of 93.9\%. Since this architecture can score high accuracy values in the 1000 class ImageNet dataset, it can be fine-tuned to our 2 class dataset and, theoretically, achieve similar values of accuracy.
 
         \paragraph{Classifiers}
           After the feature extraction process, these can be used to represent an image in a simpler way. With this, a simpler classifier (\gls{svm}, \gls{mlp}, etc.) can be used to make a representation learning process. That is the main basis of neural networks: (i) feature learning in the hidden layers and (ii) classification of the features extracted using the output layer. The feature learning process gives a compressed representation of the input image, allowing us to reduce training times and to experiment different classifiers using the same features extracted using the \gls{dl} model. With the use of hand-crafted features alongside the features extracted with the \gls{dl} model, the performance can even increase, through the introduction of a human factor, since this set of features is extracted with the help of a medical professional.
@@ -544,7 +557,7 @@
 
   % CHAPTER - Development -------------------------
   \chapter{Development} \label{development}
-    This chapter presents details about the development phase of this dissertation. In general, the information presented focus on development details about the three phases of the system's workflow (preprocessing, feature extraction and classification) presented on section \ref{problem:proposal:architecture}. The following sections will present all the implementation details about the system developed.
+    This chapter presents details about the development phase of this dissertation. In general, the information presented focus on development details about the three phases of the system's workflow (preprocessing, feature extraction and classification) presented on section \ref{problem:proposal:architecture}. The following section will present all the implementation details about those three phases.
 
     \begin{table}[t]
       \centering
@@ -581,91 +594,106 @@
 
       For this system's implementation, the Keras library was selected, using TensorFlow backend, because of the simplicity of its API and the possibility of using highly optimized \gls{dl} APi's like TensorFlow in a quick and easy way. The possible gain of performance with the use of native TensorFlow was not considered as a factor, because it could not overcome the gain in development time.
 
-      \subsection{The BCDR Dataset}
+      \subsection{The BCDR Dataset} \label{development:bcdr}
 
         \footnotetext{CPU details: \href{https://bit.ly/2uSSTlF}{https://bit.ly/2uSSTlF}}
         \footnotetext{GPU details: \href{https://bit.ly/2IwD5Hh}{https://bit.ly/2IwD5Hh}}
 
-        The BCDR dataset \cite{lopez2012bcdr} is a benchmarking dataset that contains annotated images from mammographies (film and digital) from patients in the northern region of Portugal. This dataset studies that contain both biopsy proven \gls{mlo} and \gls{cc} views of the mammography. The lesions were mannualy segmented by medical experts at Centro Hospitalar São João and compiled in a CSV file that could be used to read and prepare the dataset by a computer program. Along with the outlines CSV, there is also a features CSV file, that contains a set of hand-crafted features that can also be used in classification processes. These features will be explored later on this document.
+        The BCDR dataset \cite{lopez2012bcdr} is a benchmarking dataset that contains annotated images from film (BCDR-FXX instances) and digital (BCDR-DXX instances) mammographies from patients in the northern region of Portugal. This dataset studies that contain both biopsy proven \gls{mlo} and \gls{cc} views of the mammography. The lesions were manually segmented by medical experts at Centro Hospitalar São João and compiled in a CSV file that could be used to read and prepare the dataset by a computer program. Along with the outlines CSV, there is also a features CSV file, that contains a set of hand-crafted features that can also be used in classification processes. These features will be explored later on this document.
 
-        % ...
+        ... melhorar ...
 
         Having downloaded any of the BCDR instances (film or digital), we read the CSV into memory, that contains information like image filename, (x,y) outline points of the lesion and the classification (benign of malign). Python's libraries like \textit{csv} and \textit{Scikit-Image} were useful in this process.
 
       \subsection{Preprocessing}
-        The preprocessing phase is a set of process that takes care of preparing the dataset images to be fed to feature extraction \gls{dl} model. This phase uses the \textit{OpenCV} and \textit{Scikit-Image} libraries to implement these processes. The processes include cropping of the images to fit the input shape of the \gls{dl} model, a data augmentation process and the application of filters to enhance features. The preprocessing pipeline can be seen in figure \ref{}.
+        The preprocessing phase is a set of process that takes care of preparing the dataset images to be fed to feature extraction \gls{dl} model. This phase uses the \textit{OpenCV} and \textit{Scikit-Image} libraries to implement these processes. The processes include cropping of the images to fit the input shape of the \gls{dl} model, a data augmentation process and the application of filters to enhance features. The preprocessing pipeline can be seen in figure \ref{fig:preprocessing}.
+
+        \afterpage{
+        \begin{figure}[t!]
+          \centering
+          \includegraphics[width=\textwidth]{./img/pp-benign.png}
+          \caption[Preprocessing stages]{Preprocessing stages. In the first image we can see the raw image with the lesion segmented. The second image is the result of the extraction of the \gls{roi} where the tumor is. The third image is the result of the computation of the intensity gradient. Finally, the fourth image represents the final image, after the histogram equalization process.}
+          \label{fig:preprocessing}
+        \end{figure}}
 
         \paragraph{Cropping}
-          The Inception V3 architecture, which was used for the development of the \gls{dl} model used in this system, requires that its input (the breast cancer images) has a resolution of 224x224. Having the (x,y) outline points, read from the outlines CSV file, we have the region were the lesion is located. With this, a 224x224 region is cropped arround the \gls{roi}. If the lesion is located is a region bigger than 224x224, it is zoom down to fit the 224x224 resolution.
+          The InceptionV3 architecture, which was used for the development of the \gls{dl} model used in this system, requires that its input (the breast cancer images) has a resolution of 224x224. Having the (x,y) outline points, read from the outlines CSV file, we have the region were the lesion is located. With this, a 224x224 region is cropped around the \gls{roi}. If the lesion is located is a region bigger than 224x224, it is zoom down to fit the 224x224 resolution.
 
         \paragraph{Data Augmentation}
-          In order to increase the dataset's domain and quantity of information, data augmentation processes are used. In this system's partical case, the process used to increase the dataset's domais was the creation of new images by the use of a set of rotations (0, 90, 180 and 270 degrees), both in a normal and horizontally flipped image. This creates 7 new samples for each image, thereby increasing the size and variability of the dataset. This type of process can also prevent the overfitting process with the increase in the training domain.
+          In order to increase the dataset's domain and quantity of information, data augmentation processes are used. In this system's partical case, the process used to increase the dataset's domain was the creation of new images by the use of a set of rotations (0, 90, 180 and 270 degrees), both in a normal and horizontally flipped image. This creates 7 new samples for each image, thereby increasing the size and variability of the dataset. This type of process can also prevent the overfitting process with the increase in the training domain.
 
-        \paragraph{Filters for Feature Enhancement}
-          In order to have a better feature learning process, the features to be learned need to be visible in order for the convolution filters to seize those features. Therefore, image filters are applied to enhance those features. In Arevalo et al. \cite{arevalo2016representation} approach, the filters applied were the global contrast normalization and the local contrast normalization. In our approach, just the global contrast normalization was applied, because of the lack of performance gain with the adition of a local contrast normalization.
+        \paragraph{Feature Enhancement}
+          In order to have a better feature learning process, the features to be learned need to be visible in order for the convolution filters to seize those features. Therefore, image filters are applied to enhance those features. In Arevalo et al. \cite{arevalo2016representation} approach, the filters applied were the global contrast normalization and the local contrast normalization. In our approach, just the global contrast normalization was applied, because of the lack of performance gain with the addition of a local contrast normalization.
 
           Global contrast normalization is a process used to normalize images exposed to different lightning conditions. This process subtracts the mean of the pixels in an image to every pixel. In formal terms, we can define the global contrast normalization as:
 
           \begin{equation}
-            Y_{i,j}\ =\ X_{i,j}\ -\ \bar{x}
+            Y_{i,j}\ =\ X_{i,j}\ -\ \bar{x},\ 0 < i,j < r
           \end{equation}
 
-          where $X$ is the initial image, $\bar{x}$ represent the mean intensity of the pixels in image $X$, $r$ is the dimension of the image, in this case 224, and $Y$ is the resulting image. In our approach, we used a different approach, present by \cite{}, that garanties that the standard deviation accross all pixels is set to a constant $s$. In formal terms, our implementation (adapted to grayscale images) is defined by:
+          where $X$ is the initial image, $\bar{x}$ represent the mean intensity of the pixels in image $X$, $r$ is the dimension  of the image (width and height are the same, assuming a square image), in this case 224, and $Y$ is the resulting image.
 
-          \begin{equation}
-            Y_{i,j}\ =\ s\ *\ \frac{X_{i,j}\ -\ \bar{x}}{max\ \begin{Bmatrix}
-                      \ \epsilon,\ \sqrt{\lambda\ +\ \frac{1}{r^2}\sum_{i}\sum{j}\ (X_{i,j}\ -\ \bar{x})^2}\
-                      \end{Bmatrix}}
-          \end{equation}
+          In our approach, we use two processes to prepare the images for the feature learning process. Forst, after getting the \gls{roi}, we compute the intensity gradient of the image. Given a single-channel image (grayscale), this algorithm provides the maximum difference between each pixel and its immediate neighbours. A minimum gradient can be defined so that when a pixel has a lower intensity than that minimum, its gradient will be zero. The implementation of this algorithm in the Python language can be seen in appendix \ref{appendix:intensity-grad}.
 
-          where $X$ is the initial image, $\bar{x}$ represent the mean intensity of the pixels in image $X$, $\lambda$ is a term to bias the standard deviation, and $Y$ is the resulting image. In this case, the denominator is constrained to be at least $\epsilon$. The Python code for this transformation can be seen in appendix \ref{listings:gcn}
+          After the computation of the intensity gradient, the histogram of the image will no be normalized. To solve this, an histogram equalization process is applied to make sure that the features are more easily distinguishable. The resulting images from each one of the preprocessing processes can be seen in figure \ref{fig:preprocessing}.
 
       \subsection{Feature Extraction Model}
-        % ...
+        The \gls{dl} model developed, as already explained in section \ref{problem:proposal:architecture}, follows the InceptionV3 architecture, developed by Google. This architecture contains approximately 24 million trainable parameters, far bellow than other architectures like VGG16 ($\approx$140M), VGG19 ($\approx$145M) or InceptionResNetV2 ($\approx$55M), although it can obtain accuracy percentages in the same level.
 
-        \paragraph{Train/Test Division}
-          % ...
+        Using the Keras framework, and more specifically the \textit{keras.applications} module, we can have an implementation of an InceptionV3 model easily. With this method we can obtain a tuned model for the ImageNet dataset, with or without the classification layers (Softmax classifier at the end of the InceptionV3 model). Since the ImageNet dataset contains 1000 classes and our dataset only contains 2 (benign/malign), we discarded the classification layer. With this, we can already test our approach, making a feature extraction process using the default weights from the training using the ImageNet dataset.
+
+        Having the preprocessed images, its corresponding labels and the \gls{dl} model, we can make a fine-tuning process of the model to our dataset. In order to do this, we added a Global Average Pooling layer to flatten the data resulting from the last convolutional layer of the InceptionV3 model, and three \gls{fc} layers, with 1024, 512 and 2 nodes respectively. The first two \gls{fc} layers have \gls{relu} activation and the last layer is a Softmax classifier. The train/test division was of 80-20\%. This division makes sure that the model will never test with a study from a patient that had some of its studies/mammographic views trained. To achieve this, the division is made by patient, and never by study/image.
+
+        The model was trained using a stochastic gradient descent learner, for 150 epochs each run. The training graphs, obtained using the TensorBoard tool, can be seen in appendix \ref{appendix:training}.
+
+        \paragraph{Performance Improving}
+          In order to take advantage of both GPU's in our system, the Keras framework allows us to create a multi-GPU model, that it will replicate the model in both GPU's and take advantage of multi-GPU parallelism. To do that, the CPU needs to build the model in order for the model to be copied to both GPU's without corruptions. Using both GPU's, we gain, theoretically, a 2x speedup in training time, since both GPU's are equal.
 
       \subsection{Classifiers}
-        % ...
+        Having the feature extractor ready for use, the classifiers (\gls{svm} and \gls{mlp}) were developed. The 3 \gls{fc} layers functioned as a \gls{mlp} classifier, with 1024, 512 and 2 layers, respectively. As for the \gls{svm} classifier, it was trained using the features extracted from the penultimate layer (\gls{fc} layer with 512 nodes) from the \gls{dl} model.
+
+        ...
 
         \paragraph{Hand-Crafted Features}
-          % ...
-
-      \subsection{Performance Improving} \label{development:implementation:performance}
-        % ...
-
-    \section{Outcomes} \label{development:outcomes}
-      % ...
+          To try to achieve an increase in the \gls{svm} model classification performance, the hand-crafted features presented in \ref{development:bcdr} were added to the features extracted from the \gls{dl} model. With this, the model was trained with 529 features: 512 from the penultimate layer of the \gls{dl} model and 17 that came included in the BCDR dataset.
 
     \section{Summary} \label{development:summary}
-      % ...
+      In this chapter the details about the implementation of our \gls{cadx} system were presented. The system workflow, presented in section \ref{problem:proposal:architecture} gave the guidelines for this development phase with its three-stage workflow: (i) preprocessing of images from the BCDR dataset, (ii) feature learning, using a Deep Learning model and (iii) a binary classification stage of the input mammographic images in benign or malign tumors, using a Softmax or \gls{svm} classifiers. All the stages were easily implemented recurring to the Python language and Keras framework, which gave us the opportunity of concentrating more in tuning the system to achieve a better performance than in the implementation details.
 
   % CHAPTER - Application -------------------------
   \chapter{Case Studies / Experiments} \label{experiments}
-    % ...
+    This chapter presents the details of the experimental setup made for the evaluation of our system. This chapter's information focus on the \gls{dl} model's training outcomes and the results obtained with the experimental setup made for our system's evaluation. Finally, the results obtained are discussed and analysed in section \ref{experiments:discussion}.
 
     \section{Experiment setup} \label{experiments:tests}
-      % ...
+      The set of experiments made on our system using the BCDR benchmarking dataset involved 4 main tasks:
+
+      \begin{itemize}
+        \item Evaluation of the \gls{dl} model before the fine-tuning process, using the default weights from the ImageNet dataset that came along with the default InceptionV3 model. We can make a feature extraction process using the \gls{dl} model and later feed those features to an SVM model for binary classification (benign/malign);
+        \item Evaluation of the \gls{dl} model after a fine-tuning process on our dataset and using the \gls{fc} layers and the Softmax classifier appended to this model for binary classification (benign/malign);
+        \item Evaluation of the \gls{dl} model after a fine-tuning process on our dataset. We can make a feature extraction process using the \gls{dl} model and later feed those features to an SVM model for binary classification (benign/malign);
+        \item Evaluation of the \gls{dl} model after a fine-tuning process on our dataset, along with a set of hand-crafted features. We can make a feature extraction process using the \gls{dl} model and later feed those features along with the set of hand-crafted features to an SVM model for binary classification (benign/malign);
+      \end{itemize}
+
+
 
     \section{Results} \label{experiments:results}
-      % ...
+      ...
 
     \section{Discussion} \label{experiments:discussion}
-      % ...
+      ...
 
     \section{Summary} \label{experiments:summary}
-      % ...
+      ...
 
   % CHAPTER - Conclusion/Future Work --------------
   \chapter{Conclusion} \label{conclusion}
-    % ...
+    ...
 
     \section{Conclusions} \label{conclusion:conclusions}
-      % ...
+      ...
 
     \section{Prospect for future work} \label{conclusion:future-work}
-      % ...
+      ...
 
   \bookmarksetup{startatroot} % Ends last part.
 
@@ -683,53 +711,55 @@
 
     % Add appendix chapters
     \chapter{Support material} \label{support-material}
-      \section{Inception V3 Architecture} \label{appendix:inception-v3}
+      \section{InceptionV3 Architecture} \label{appendix:inception-v3}
         \begin{figure}[h]
           \centering
-          \includegraphics[angle=90,width=0.32\textwidth]{"./img/inception-v3"}
-          \caption[Inception V3 Architecture]{Inception V3 Architecture.}
+          \includegraphics[angle=90,width=0.3\textwidth]{"./img/inception-v3"}
+          \caption[InceptionV3 Architecture]{InceptionV3 Architecture.}
         \end{figure}
 
     \chapter{Details of results} \label{results}
-      Details of results whose length would compromise readability of main text; or
+      \section{Training Logs} \label{appendix:training}
+        ...
 
     \chapter{Listings} \label{listings}
-      \section{Global Contrast Normalization implementation} \label{listings:gcn}
-        \begin{lstlisting}[language=Python]
-def global_contrast_normalization(X, s, lmda, epsilon):
-    # Calculate mean of intensities
-    X_average = np.mean(X)
-    # Subtract mean to every pixel
-    X = X - X_average
-    # Final operation to make stddev equal to s
-    contrast = np.sqrt(lmda + np.mean(X**2))
-    X = s * X / max(contrast, epsilon)
-    return X
-        \end{lstlisting}
-
-      \section{ZCA Whitening implementation} \label{listings:zca}
+      \section{Intensity Gradient computation in Python} \label{appendix:intensity-grad}
         \begin{lstlisting}
-def zca_whitening(X):
-    # Covariance matrix [column-wise variables]: Sigma = (X-mu)' * (X-mu) / N
-    sigma = np.cov(X, rowvar=True) # [M x M]
-    # Singular Value Decomposition. X = U * np.diag(S) * V
-    U,S,V = np.linalg.svd(sigma)
-        # U: [M x M] eigenvectors of sigma.
-        # S: [M x 1] eigenvalues of sigma.
-        # V: [M x M] transpose of U
-    # Whitening constant: prevents division by zero
-    epsilon = 1e-5
-    # ZCA Whitening matrix: U * Lambda * U'
-    ZCAMatrix = np.dot(U, np.dot(np.diag(1.0/np.sqrt(S + epsilon)), U.T)) # [M x M]
-    X = np.dot(ZCAMatrix, X)
-    return X
+def compute_intensity_gradient(image, min_gradient=0):
+    """
+    Given an intensity single-channel image it computes the corresponding
+    intensity gradient. The gradient image provides the maximum difference
+    between each pixel and its immediate neighbours (in row or column)
+    as a 2D image.
+
+    Pixels where the gradient value is lower than min_gradient are set to zero
+    """
+    N,M = image.shape
+    imWork = image.copy().astype(np.float16)
+    gradImag = np.zeros_like(image)
+
+    iWork_rowprev = np.pad(imWork[1:,:] - imWork[:-1,:], ((1,0),(0,0)), 'constant')
+    iWork_rownext = np.pad(imWork[:-1,:] - imWork[1:,:], ((0,1),(0,0)), 'constant')
+
+    iWork_colprev = np.pad(imWork[:,1:] - imWork[:,:-1], ((0,0),(1,0)), 'constant')
+    iWork_colnext = np.pad(imWork[:,:-1] - imWork[:,1:], ((0,0),(0,1)), 'constant')
+
+    canvas = np.zeros([N,M,4])
+    canvas[:,:,0] = np.abs(iWork_rowprev)
+    canvas[:,:,1] = np.abs(iWork_rownext)
+    canvas[:,:,2] = np.abs(iWork_colprev)
+    canvas[:,:,3] = np.abs(iWork_colnext)
+
+    gradImag = np.amax(canvas, axis=-1)
+    gradImag[gradImag<min_gradient]=0
+    return gradImag
         \end{lstlisting}
 
     \chapter{Tooling} \label{tooling}
       \section{Dissertation Conceptual Map}
         \begin{figure}[h]
           \centering
-          \includegraphics[angle=90,width=0.5\textwidth]{"./img/mind-map"}
+          \includegraphics[angle=90,width=0.48\textwidth]{"./img/mind-map"}
           \caption[Dissertation Conceptual Map]{Dissertation Conceptual Map.}
           \label{appendix:concepts}
         \end{figure}

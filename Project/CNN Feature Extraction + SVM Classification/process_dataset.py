@@ -144,7 +144,11 @@ if __name__ == "__main__":
 			# reduceLRCallback = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1, min_lr=1e9)
 			lrScheduleCallback = keras.callbacks.LearningRateScheduler(step_decay)
 			if args.validation:
-				# train the model using 10-Fold Cross Validation
+				# Split in train and test data
+				kfold = KFold(n_splits=10, shuffle=True, random_state=12345)
+				cvscores = []
+				i = 1
+				# Train the model using 10-Fold Cross Validation
 				for train, test in kfold.split(images, labels):
 					print('\n[TRAINING] Iteration {}:'.format(i))
 					# Split train and test data
