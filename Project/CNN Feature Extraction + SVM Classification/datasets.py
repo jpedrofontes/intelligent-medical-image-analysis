@@ -11,6 +11,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def rotate(img, angle):
+    """
+    Given an image, it rotates it <angle> degrees.
+    """
     rows, cols, chans = img.shape
     M = cv.getRotationMatrix2D((cols/2,rows/2), angle, 1)
     dst = cv.warpAffine(img, M, (cols,rows))
@@ -28,7 +31,6 @@ def getEnclosingCircle(points):
 			c = _make_circle_one_point(shuffled[ : i + 1], p)
 	return c
 
-
 # One boundary point known
 def _make_circle_one_point(points, p):
 	c = (p[0], p[1], 0.0)
@@ -39,7 +41,6 @@ def _make_circle_one_point(points, p):
 			else:
 				c = _make_circle_two_points(points[ : i + 1], p, q)
 	return c
-
 
 # Two boundary points known
 def _make_circle_two_points(points, p, q):
@@ -74,7 +75,6 @@ def _make_circle_two_points(points, p, q):
 	else:
 		return left if (left[2] <= right[2]) else right
 
-
 def make_circumcircle(p0, p1, p2):
 	# Mathematical algorithm from Wikipedia: Circumscribed circle
 	ax, ay = p0
@@ -95,14 +95,12 @@ def make_circumcircle(p0, p1, p2):
 	rc = math.hypot(x - p2[0], y - p2[1])
 	return (x, y, max(ra, rb, rc))
 
-
 def make_diameter(p0, p1):
 	cx = (p0[0] + p1[0]) / 2.0
 	cy = (p0[1] + p1[1]) / 2.0
 	r0 = math.hypot(cx - p0[0], cy - p0[1])
 	r1 = math.hypot(cx - p1[0], cy - p1[1])
 	return (cx, cy, max(r0, r1))
-
 
 _MULTIPLICATIVE_EPSILON = 1 + 1e-14
 
@@ -114,6 +112,11 @@ def _cross_product(x0, y0, x1, y1, x2, y2):
 	return (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0)
 
 def global_contrast_normalization(X, s, lmda, epsilon):
+    """
+    Given an image, a standard deviation s and parameters lambda ans epsilon,
+    it normalizes the contrast of the image having in count all of the image
+    pixels.
+    """
     # Calculate mean of intensities
     X_average = np.mean(X)
     # Subtract mean to every pixel
@@ -124,7 +127,8 @@ def global_contrast_normalization(X, s, lmda, epsilon):
     return X
 
 def compute_intensity_gradient(image, min_gradient=0):
-    """Given an intensity single-channel image it computes the corresponding
+    """
+    Given an intensity single-channel image it computes the corresponding
     intensity gradient. The gradient image provides the maximum difference
     between each pixel and its immediate neighbours (in row or column)
     as a 2D image.
@@ -153,7 +157,8 @@ def compute_intensity_gradient(image, min_gradient=0):
 
 class bcdr:
     """
-    docstring for BCDR.
+    Class that loads and prepares the BCDR dataset for future study using
+    Machine/Deep Learning methods.
     """
     F01 = 'BCDR-F01'
     F02 = 'BCDR-F02'
@@ -195,7 +200,7 @@ class bcdr:
             print('\n[INFO] Processing {} instance...'.format(instance))
             num_classes = 2
             save = False
-            show = False
+            show = True
             # Retrieve the data from the csv file
             images = []
             labels = []
@@ -226,10 +231,6 @@ class bcdr:
                             for i in range (0, x_points.size-2):
                                 cv.line(img_tmp, (int(x_points[i]), int(y_points[i])), (int(x_points[i+1]), int(y_points[i+1])), color, 3)
                             cv.line(img_tmp, (int(x_points[x_points.size-1]), int(y_points[x_points.size-1])), (int(x_points[0]), int(y_points[0])), color, 3)
-                            fig = plt.figure()
-                            fig.add_subplot(1,4,1)
-                            plt.imshow(img_tmp, cmap='gray')
-                            plt.axis('off')
                         # Get bounding circle
                         cnt = []
                         for x,y in zip(x_points, y_points):
@@ -254,6 +255,11 @@ class bcdr:
                         # Crop image
                         roi_img = img[min_y:max_y, min_x:max_x]
                         if show:
+                            cv.rectangle(img_tmp, (min_x,min_y), (max_x,max_y), (0,0,255), 2)
+                            fig = plt.figure()
+                            fig.add_subplot(1,4,1)
+                            plt.imshow(img_tmp, cmap='gray')
+                            plt.axis('off')
                             fig.add_subplot(1,4,2)
                             plt.imshow(roi_img, cmap='gray')
                             plt.axis('off')

@@ -559,13 +559,14 @@
   \chapter{Development} \label{development}
     This chapter presents details about the development phase of this dissertation. In general, the information presented focus on development details about the three phases of the system's workflow (preprocessing, feature extraction and classification) presented on section \ref{problem:proposal:architecture}. The following section will present all the implementation details about those three phases.
 
+    \afterpage{
     \begin{table}[t]
       \centering
       \begin{tabular}{ccc}
         \hline\\[-1em]
         & \textbf{CPU} & \textbf{GPU} \\\hline\\[-1em]
         Manufacturer & Intel\textsuperscript{\textregistered} & NVIDIA\textsuperscript{\textregistered} \\\hline\\[-1em]
-        Model & i7-7700 & GeForce GTX 1080 \\\hline\\[-1em]
+        Model & Core\textsuperscript{\texttrademark} i7-7700 & GeForce\textsuperscript{\textregistered} GTX 1080 \\\hline\\[-1em]
         \#Devices & 1 & 2 \\\hline\\[-1em]
         Release Date & Q1'17 & Q2'16 \\\hline\\[-1em]
         $\mu$Arch & Kaby Lake & Pascal \\\hline\\[-1em]
@@ -579,7 +580,7 @@
       \end{tabular}
       \caption[Development system characteristics]{Development system's CPU\footnotemark\ and GPU's\footnotemark\ characteristics. This table presents the hardware that the systems used for the \gls{dl} model training possess. The use of 2 GPU's made possible a theoretical gain of 2x in the training time.}
       \label{tab:hw-details}
-    \end{table}
+    \end{table}}
 
     \section{Implementation} \label{development:implementation}
 
@@ -603,24 +604,24 @@
 
         ... melhorar ...
 
-        Having downloaded any of the BCDR instances (film or digital), we read the CSV into memory, that contains information like image filename, (x,y) outline points of the lesion and the classification (benign of malign). Python's libraries like \textit{csv} and \textit{Scikit-Image} were useful in this process.
+        Having downloaded any of the BCDR instances (film or digital), we read the CSV into memory, that contains information like image filename, (x,y) outline points of the lesion and the classification (benign of malign).
 
       \subsection{Preprocessing}
-        The preprocessing phase is a set of process that takes care of preparing the dataset images to be fed to feature extraction \gls{dl} model. This phase uses the \textit{OpenCV} and \textit{Scikit-Image} libraries to implement these processes. The processes include cropping of the images to fit the input shape of the \gls{dl} model, a data augmentation process and the application of filters to enhance features. The preprocessing pipeline can be seen in figure \ref{fig:preprocessing}.
+        The preprocessing phase is a set of process that takes care of preparing the dataset images to be fed to feature extraction \gls{dl} model. This phase uses the \textit{OpenCV} library to implement its processes. The processes include cropping of the images to fit the input shape of the \gls{dl} model, a data augmentation process and the application of filters to enhance features. The preprocessing pipeline can be seen in figure \ref{fig:preprocessing}.
 
         \afterpage{
         \begin{figure}[t!]
           \centering
-          \includegraphics[width=\textwidth]{./img/pp-benign.png}
-          \caption[Preprocessing stages]{Preprocessing stages. In the first image we can see the raw image with the lesion segmented. The second image is the result of the extraction of the \gls{roi} where the tumor is. The third image is the result of the computation of the intensity gradient. Finally, the fourth image represents the final image, after the histogram equalization process.}
+          \includegraphics[width=\textwidth]{./img/pp-benign}
+          \caption[Preprocessing stages]{Preprocessing stages. In the first image we can see the raw image with the lesion segmented (in green color - benign lesion) and the ROI that will be extracted (in blue color). The second image is the result of the extraction of the \gls{roi} where the tumor is. The third image is the result of the computation of the intensity gradient. Finally, the fourth image represents the final image, after the histogram equalization process.}
           \label{fig:preprocessing}
         \end{figure}}
 
         \paragraph{Cropping}
-          The InceptionV3 architecture, which was used for the development of the \gls{dl} model used in this system, requires that its input (the breast cancer images) has a resolution of 224x224. Having the (x,y) outline points, read from the outlines CSV file, we have the region were the lesion is located. With this, a 224x224 region is cropped around the \gls{roi}. If the lesion is located is a region bigger than 224x224, it is zoom down to fit the 224x224 resolution.
+          The InceptionV3 architecture, which was used for the development of the \gls{dl} model used in this system, requires that its input (the breast cancer images) has a resolution of 224x224. Having the outline points, read from the outlines CSV file, we have the region were the lesion is located. With this, we can get the center point and radius of the minimum bounding circle of the lesion. With the radius and the center point, we can get a squared region that encloses the region. If the circle's diameter is greater or equal than 224px (InceptionV3 input size), than the region will be resized to fit the 224x224 resolution. Otherwise, the radius is increased to 224px, so it will capture a bigger region than the one containing the region. This will ensure that a loss in the image's resolution or an aspect ratio change will not occur.
 
         \paragraph{Data Augmentation}
-          In order to increase the dataset's domain and quantity of information, data augmentation processes are used. In this system's partical case, the process used to increase the dataset's domain was the creation of new images by the use of a set of rotations (0, 90, 180 and 270 degrees), both in a normal and horizontally flipped image. This creates 7 new samples for each image, thereby increasing the size and variability of the dataset. This type of process can also prevent the overfitting process with the increase in the training domain.
+          In order to increase the dataset's domain and quantity of information, data augmentation processes are used. In this system's particular case, the process used to increase the dataset's domain was the creation of new images by the use of a set of rotations (0, 90, 180 and 270 degrees). This creates 3 new samples for each image, thereby increasing the size and variability of the dataset. This type of process can also prevent the overfitting process with the increase in the training domain.
 
         \paragraph{Feature Enhancement}
           In order to have a better feature learning process, the features to be learned need to be visible in order for the convolution filters to seize those features. Therefore, image filters are applied to enhance those features. In Arevalo et al. \cite{arevalo2016representation} approach, the filters applied were the global contrast normalization and the local contrast normalization. In our approach, just the global contrast normalization was applied, because of the lack of performance gain with the addition of a local contrast normalization.
@@ -633,7 +634,7 @@
 
           where $X$ is the initial image, $\bar{x}$ represent the mean intensity of the pixels in image $X$, $r$ is the dimension  of the image (width and height are the same, assuming a square image), in this case 224, and $Y$ is the resulting image.
 
-          In our approach, we use two processes to prepare the images for the feature learning process. Forst, after getting the \gls{roi}, we compute the intensity gradient of the image. Given a single-channel image (grayscale), this algorithm provides the maximum difference between each pixel and its immediate neighbours. A minimum gradient can be defined so that when a pixel has a lower intensity than that minimum, its gradient will be zero. The implementation of this algorithm in the Python language can be seen in appendix \ref{appendix:intensity-grad}.
+          In our approach, we use two processes to prepare the images for the feature learning process. First, after getting the \gls{roi}, we compute the intensity gradient of the image. Given a single-channel image (grayscale), this algorithm provides the maximum difference between each pixel and its immediate neighbours. A minimum gradient can be defined so that when a pixel has a lower intensity than that minimum, its gradient will be zero. The implementation of this algorithm in the Python language can be seen in appendix \ref{appendix:intensity-grad}.
 
           After the computation of the intensity gradient, the histogram of the image will no be normalized. To solve this, an histogram equalization process is applied to make sure that the features are more easily distinguishable. The resulting images from each one of the preprocessing processes can be seen in figure \ref{fig:preprocessing}.
 
@@ -662,25 +663,50 @@
 
   % CHAPTER - Application -------------------------
   \chapter{Case Studies / Experiments} \label{experiments}
-    This chapter presents the details of the experimental setup made for the evaluation of our system. This chapter's information focus on the \gls{dl} model's training outcomes and the results obtained with the experimental setup made for our system's evaluation. Finally, the results obtained are discussed and analysed in section \ref{experiments:discussion}.
+    This chapter presents the details of the experimental setup made for the evaluation of our system. This chapter's information focus on the \gls{dl} model's training outcomes and the results obtained with the experimental setup made for our system's evaluation. Finally, the results obtained are discussed and analyzed in section \ref{experiments:results}.
 
     \section{Experiment setup} \label{experiments:tests}
       The set of experiments made on our system using the BCDR benchmarking dataset involved 4 main tasks:
 
       \begin{itemize}
-        \item Evaluation of the \gls{dl} model before the fine-tuning process, using the default weights from the ImageNet dataset that came along with the default InceptionV3 model. We can make a feature extraction process using the \gls{dl} model and later feed those features to an SVM model for binary classification (benign/malign);
+        \item Evaluation of the \gls{dl} model before the fine-tuning process, using the default weights from the ImageNet dataset that came along with the default InceptionV3 model. We can make a feature extraction process using the \gls{dl} model and later feed those features, normalized to have zero-mean and unit-variance, to an SVM model for binary classification (benign/malign);
         \item Evaluation of the \gls{dl} model after a fine-tuning process on our dataset and using the \gls{fc} layers and the Softmax classifier appended to this model for binary classification (benign/malign);
-        \item Evaluation of the \gls{dl} model after a fine-tuning process on our dataset. We can make a feature extraction process using the \gls{dl} model and later feed those features to an SVM model for binary classification (benign/malign);
-        \item Evaluation of the \gls{dl} model after a fine-tuning process on our dataset, along with a set of hand-crafted features. We can make a feature extraction process using the \gls{dl} model and later feed those features along with the set of hand-crafted features to an SVM model for binary classification (benign/malign);
+        \item Evaluation of the \gls{dl} model after a fine-tuning process on our dataset. We can make a feature extraction process using the \gls{dl} model and later feed those features, normalized to have zero-mean and unit-variance, to an SVM model for binary classification (benign/malign);
+        \item Evaluation of the \gls{dl} model after a fine-tuning process on our dataset, along with a set of hand-crafted features. We can make a feature extraction process using the \gls{dl} model and later feed those features along with the set of hand-crafted features, normalized to have zero-mean and unit-variance, to an SVM model for binary classification (benign/malign);
       \end{itemize}
 
+      This experimental setup allowed us to verify the integrity of our system and to find the best combination of classifiers that could give us the best performance in classifying breast cancer tumors. To verify the integrity of these models, we carried out a 10-fold cross validation method for each method. This method can check the integrity of the model, as long as it gives us important information about the generalization capabilities of our system. A scheme of this method can be seen in figure \ref{fig:cross-validation}.
 
+      \afterpage{
+      \begin{figure}[t!]
+        \centering
+        \includegraphics[width=\textwidth]{./img/cross-validation}
+        \caption[K-Fold Cross Validation method scheme]{K-Fold Cross Validation method scheme. In this method, the entire dataset is used both for training and test phases. The strategy is to divide the dataset in K folds and use K-1 for training, varying the one that is used to test the model. After all the validation procedures, the final performance is measured by the average and standard deviation of the accuracy achieved with each of the runs.}
+        \label{fig:cross-validation}
+      \end{figure}}
 
     \section{Results} \label{experiments:results}
-      ...
+      The results obtained with our system can be checked in table \ref{}
 
-    \section{Discussion} \label{experiments:discussion}
-      ...
+      \afterpage{
+      \begin{table}[t]
+        \centering
+        \begin{tabular}{ccc}
+          \hline\\[-1em]
+          \textbf{Model} & \textbf{Accuracy} & \textbf{\gls{auc}}
+          \\\hline\\[-1em]
+          ImageNet + SVM & 75.19\% & 0.740
+          \\\hline\\[-1em]
+          Fine-Tuning + Softmax & -- & --
+          \\\hline\\[-1em]
+          Fine-Tuning + SVM & -- & --
+          \\\hline\\[-1em]
+          Fine-Tuning + SVM + Hand-Crafted Features & -- & --
+          \\\hline\\[-1em]
+        \end{tabular}
+        \caption[Summary of Cross Validation Results]{Summary of Cross Validation Results in terms of test accuracy, loss and \gls{auc}}
+        \label{tab:hw-details}
+      \end{table}}
 
     \section{Summary} \label{experiments:summary}
       ...
